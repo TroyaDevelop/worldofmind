@@ -1,0 +1,120 @@
+body {
+  background-color: aquamarine;
+}
+
+a {
+  text-decoration: none;
+}
+
+.header {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 0 0 15px 0;
+  width: 500px;
+  height: 70px;
+  background-color: lightgoldenrodyellow;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.headerWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.skillsWrapper {
+  display: flex;
+  margin: 0 25px 0 25px;
+}
+
+.search {
+  margin: 0 0 0 50px;
+}
+
+.loginWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 15% 0 0 0;
+}
+.loginWrapper .loginBlock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 350px;
+  height: 200px;
+  background-color: papayawhip;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.registerWrapper {
+  display: flex;
+  justify-content: center;
+  margin: 15% 0 0 0;
+}
+.registerWrapper .registerBlock {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 350px;
+  height: 200px;
+  background-color: papayawhip;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.addSkillWrapper {
+  display: flex;
+  margin-top: 150px;
+}
+.addSkillWrapper .addSkillBlock {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  width: 400px;
+  background-color: papayawhip;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.addSkillWrapper .skillDesc {
+  width: 300px;
+  height: 100px;
+  resize: vertical;
+}
+.addSkillWrapper .skillText {
+  width: 300px;
+  height: 200px;
+  resize: vertical;
+}
+
+.skillBlock {
+  margin: 25px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.skillBlock .skill {
+  border: 1px solid black;
+  text-align: center;
+  background-color: white;
+  margin: 15px 15px 0 0;
+  padding: 15px 15px 15px 15px;
+  width: 200px;
+  height: 300px;
+  word-wrap: break-word;
+}
+
+.article {
+  border: 1px solid black;
+  padding: 50px;
+  margin: 30px;
+  width: 70%;
+}
+.article img {
+  width: 700px;
+  height: 400px;
+}/*# sourceMappingURL=style.css.map */
