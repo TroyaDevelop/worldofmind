@@ -115,6 +115,6 @@ a {
   width: 70%;
 }
 .article img {
-  width: 700px;
-  height: 400px;
+  max-width: 1200px;
+  max-height: 400px;
 }/*# sourceMappingURL=style.css.map */
