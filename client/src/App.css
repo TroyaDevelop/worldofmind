@@ -22,6 +22,7 @@
   --modal-bg: #fff;
   --modal-border: #dee2e6;
   --blockquote-color: #6c757d;
+  --input-text-color: #333;
 }
 
 /* Стили для тёмной темы */
@@ -42,6 +43,7 @@
   /* Переопределение некоторых основных цветов */
   --light-color: #1a1a1a;
   --gray-color: #666;
+  --input-text-color: #e0e0e0;
 }
 
 body {
@@ -140,6 +142,7 @@ body {
   border-radius: 4px;
   transition: border-color 0.3s;
   background-color: var(--input-bg);
+  color: var(--input-text-color);
 }
 
 .form-control:focus {
@@ -604,4 +607,111 @@ body {
   padding: 0.5rem 1rem;
   border-left: 5px solid var(--primary-color);
   color: var(--blockquote-color);
+}
+
+/* Стили для визуализации навыков в виде нейронной сети */
+.neuron-map-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  background-color: var(--bg-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.neuron-map-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.no-skills-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+/* Всплывающие подсказки для узлов */
+.node-tooltip {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 100;
+  max-width: 200px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* Переключатель режима отображения */
+.view-mode-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.view-mode-toggle .btn {
+  padding: 0.5rem 1.5rem;
+  border-radius: 30px;
+  font-weight: 500;
+  margin: 0 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.view-mode-toggle .btn.active {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Анимация для нейронных точек */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
+}
+
+/* Стили для ReactQuill в тёмной теме */
+.dark-mode .ql-editor {
+  color: var(--input-text-color);
+}
+
+.dark-mode .ql-toolbar {
+  background-color: var(--input-bg);
+  color: var(--input-text-color);
+  border-color: var(--input-border);
+}
+
+.dark-mode .ql-container {
+  background-color: var(--input-bg);
+  color: var(--input-text-color);
+  border-color: var(--input-border);
+}
+
+.dark-mode .ql-picker {
+  color: var(--input-text-color);
+}
+
+.dark-mode .ql-stroke {
+  stroke: var(--input-text-color);
+}
+
+.dark-mode .ql-fill {
+  fill: var(--input-text-color);
+}
+
+.dark-mode .ql-picker-options {
+  background-color: var(--card-bg);
+}
+
+.dark-mode .ql-picker-item {
+  color: var(--input-text-color);
 }

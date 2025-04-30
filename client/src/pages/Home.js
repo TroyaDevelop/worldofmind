@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllSkills, getCategories } from '../services/skillService';
-import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaBrain, FaList } from 'react-icons/fa';
+import NeuronSkillsMap from '../components/NeuronSkillsMap';
 
 const Home = () => {
   const [skills, setSkills] = useState([]);
@@ -9,6 +10,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [viewMode, setViewMode] = useState('neuron'); // 'neuron' или 'list'
 
   // Загрузка навыков и категорий при монтировании компонента
   useEffect(() => {
@@ -97,6 +99,22 @@ const Home = () => {
         </Link>
       </div>
 
+      {/* Переключатель режимов отображения */}
+      <div className="view-mode-toggle">
+        <button
+          className={`btn ${viewMode === 'neuron' ? 'btn-primary active' : 'btn-outline-primary'}`}
+          onClick={() => setViewMode('neuron')}
+        >
+          <FaBrain className="me-2" /> Нейронная карта
+        </button>
+        <button
+          className={`btn ${viewMode === 'list' ? 'btn-primary active' : 'btn-outline-primary'}`}
+          onClick={() => setViewMode('list')}
+        >
+          <FaList className="me-2" /> Список
+        </button>
+      </div>
+
       {/* Фильтр категорий */}
       <div className="category-filter mb-4">
         <button
@@ -130,8 +148,13 @@ const Home = () => {
         </div>
       )}
 
-      {/* Отображение навыков по категориям */}
-      {filteredCategories.length > 0 && (
+      {/* Нейронная визуализация навыков */}
+      {skills.length > 0 && viewMode === 'neuron' && (
+        <NeuronSkillsMap skills={skills} activeCategory={activeCategory} />
+      )}
+
+      {/* Отображение навыков по категориям в формате списка */}
+      {skills.length > 0 && viewMode === 'list' && filteredCategories.length > 0 && (
         <div className="skills-container">
           {filteredCategories.map(category => (
             <div key={category} className="category-section mb-4">
