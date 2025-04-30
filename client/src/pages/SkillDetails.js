@@ -121,7 +121,6 @@ const SkillDetails = () => {
 
           {skill.text && (
             <div className="mt-4">
-              <h5>Содержание</h5>
               <div 
                 className="skill-content"
                 dangerouslySetInnerHTML={{ __html: skill.text }}
@@ -130,23 +129,6 @@ const SkillDetails = () => {
           )}
         </div>
       </div>
-
-      {/* Изображение, если есть */}
-      {skill.image && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h5 className="mb-0">Изображение</h5>
-          </div>
-          <div className="card-body text-center">
-            <img 
-              src={`http://localhost:5000/uploads/${skill.image}`} 
-              alt={skill.article}
-              className="img-fluid" 
-              style={{ maxHeight: '500px' }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Модальное окно подтверждения удаления */}
       {showDeleteModal && (

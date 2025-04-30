@@ -6,6 +6,7 @@ require('dotenv').config();
 // Импортируем маршруты
 const authRoutes = require('./routes/auth');
 const skillRoutes = require('./routes/skills');
+const uploadRoutes = require('./routes/uploads');
 
 // Инициализируем приложение Express
 const app = express();
@@ -22,6 +23,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Настройка маршрутов API
 app.use('/api/auth', authRoutes);
 app.use('/api/skills', skillRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // Обрабатываем все остальные маршруты для SPA в продакшене
 if (process.env.NODE_ENV === 'production') {

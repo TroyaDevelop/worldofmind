@@ -83,10 +83,15 @@ exports.update = async (req, res) => {
   try {
     const userId = req.user.id;
     const skillId = req.params.id;
+    
+    // Добавляем вывод отладочной информации
+    console.log('Данные запроса на обновление:', req.body);
+    
     const { article, category, description, text, color } = req.body;
     
     // Валидация данных
     if (!article || !category) {
+      console.log('Ошибка валидации: article =', article, 'category =', category);
       return res.status(400).json({ error: 'Необходимо указать название и категорию навыка' });
     }
     
@@ -98,23 +103,16 @@ exports.update = async (req, res) => {
     
     // Формирование данных для обновления
     const skillData = {
-      article,
-      category,
-      description: description || '',
+      article: article.trim(),
+      category: category.trim(),
+      description: description ? description.trim() : '',
       text: text || '',
       color: color || '#3498db',
-      image: req.file ? req.file.filename : existingSkill.image
+      // Сохраняем существующее изображение
+      image: existingSkill.image
     };
     
-    // Если загружено новое изображение, и было старое, удаляем старое
-    if (req.file && existingSkill.image) {
-      const oldImagePath = path.join(__dirname, '../uploads', existingSkill.image);
-      
-      // Проверяем существование файла перед удалением
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
-    }
+    console.log('Данные для обновления:', skillData);
     
     const updatedSkill = await Skill.update(skillId, skillData, userId);
     

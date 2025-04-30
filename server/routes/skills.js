@@ -15,7 +15,8 @@ router.get('/categories', authMiddleware, skillController.getCategories);
 router.get('/search', authMiddleware, skillController.search);
 router.get('/:id', authMiddleware, skillController.getById);
 router.post('/', authMiddleware, uploadMiddleware.single('image'), skillController.create);
-router.put('/:id', authMiddleware, uploadMiddleware.single('image'), skillController.update);
+// Удаляем middleware загрузки изображений при обновлении навыка
+router.put('/:id', authMiddleware, skillController.update);
 router.delete('/:id', authMiddleware, skillController.delete);
 
 module.exports = router;

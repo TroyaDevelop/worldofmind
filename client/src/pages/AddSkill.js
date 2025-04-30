@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -6,6 +6,7 @@ import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import { createSkill, getCategories } from '../services/skillService';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import api from '../services/api';
 
 const AddSkill = () => {
   const navigate = useNavigate();
@@ -13,27 +14,84 @@ const AddSkill = () => {
   const [error, setError] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [existingCategories, setExistingCategories] = useState([]);
+  
+  // Ссылка на экземпляр редактора Quill
+  const quillRef = useRef(null);
+
+  // Функция для загрузки изображений через редактор
+  const imageHandler = useCallback(() => {
+    // Создаем невидимый input для выбора файла
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    // Обрабатываем выбор файла
+    input.onchange = async () => {
+      try {
+        const file = input.files[0];
+        if (!file) return;
+
+        // Проверка размера файла (до 5 МБ)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Размер файла превышает 5МБ. Выберите файл меньшего размера.');
+          return;
+        }
+
+        // Отображаем статус загрузки
+        const quill = quillRef.current.getEditor();
+        const range = quill.getSelection(true);
+        quill.insertText(range.index, 'Загрузка изображения... ', 'italic');
+
+        // Создаём объект FormData для отправки файла
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // Отправляем файл на сервер - исправляем URL
+        const response = await api.post('/uploads/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        // Удаляем текст "Загрузка изображения..."
+        quill.deleteText(range.index, 'Загрузка изображения... '.length);
+
+        // Вставляем изображение
+        const imgUrl = response.data.file.url;
+        quill.insertEmbed(range.index, 'image', imgUrl);
+
+        // Перемещаем курсор после изображения
+        quill.setSelection(range.index + 1);
+      } catch (error) {
+        console.error('Ошибка при загрузке изображения:', error);
+        alert('Произошла ошибка при загрузке изображения. Пожалуйста, попробуйте еще раз.');
+      }
+    };
+  }, []);
 
   // Конфигурация модулей редактора Quill
   const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-      ['link', 'image'],
-      ['clean'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'align': [] }]
-    ],
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        'image': imageHandler
+      }
+    }
   };
-  
+
+  // Форматы, поддерживаемые редактором
   const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
-    'link', 'image',
-    'color', 'background',
-    'align'
+    'link', 'image'
   ];
 
   // Загрузка существующих категорий
@@ -230,6 +288,7 @@ const AddSkill = () => {
             <div className="mb-3">
               <label htmlFor="text" className="form-label">Содержание</label>
               <ReactQuill
+                ref={quillRef}
                 theme="snow"
                 value={formik.values.text}
                 onChange={handleTextChange}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -6,6 +6,7 @@ import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import { getSkillById, updateSkill, getCategories } from '../services/skillService';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import api from '../services/api';
 
 const EditSkill = () => {
   const { id } = useParams();
@@ -13,33 +14,88 @@ const EditSkill = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
   const [existingCategories, setExistingCategories] = useState([]);
-  const [currentImageUrl, setCurrentImageUrl] = useState(null);
+
+  // Функция для загрузки изображений
+  const imageHandler = useCallback(() => {
+    // Создаем невидимый input для выбора файла
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    // Обрабатываем выбор файла
+    input.onchange = async () => {
+      try {
+        const file = input.files[0];
+        if (!file) return;
+
+        // Проверка размера файла (до 5 МБ)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Размер файла превышает 5МБ. Выберите файл меньшего размера.');
+          return;
+        }
+
+        // Отображаем статус загрузки
+        const quill = quillRef.current.getEditor();
+        const range = quill.getSelection(true);
+        quill.insertText(range.index, 'Загрузка изображения... ', 'italic');
+
+        // Создаём объект FormData для отправки файла
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // Отправляем файл на сервер - исправляем URL
+        const response = await api.post('/uploads/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        // Удаляем текст "Загрузка изображения..."
+        quill.deleteText(range.index, 'Загрузка изображения... '.length);
+
+        // Вставляем изображение
+        const imgUrl = response.data.file.url;
+        quill.insertEmbed(range.index, 'image', imgUrl);
+
+        // Перемещаем курсор после изображения
+        quill.setSelection(range.index + 1);
+      } catch (error) {
+        console.error('Ошибка при загрузке изображения:', error);
+        alert('Произошла ошибка при загрузке изображения. Пожалуйста, попробуйте еще раз.');
+      }
+    };
+  }, []);
+
+  // Ссылка на экземпляр редактора Quill
+  const quillRef = React.useRef(null);
 
   // Конфигурация модулей редактора Quill
   const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-      [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-      ['link', 'image'],
-      ['clean'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'align': [] }]
-    ],
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+        ['link', 'image'],
+        ['clean']
+      ],
+      handlers: {
+        'image': imageHandler
+      }
+    }
   };
-  
+
+  // Форматы, поддерживаемые редактором
   const formats = [
     'header',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
-    'link', 'image',
-    'color', 'background',
-    'align'
+    'link', 'image'
   ];
 
-  // Настройка formik
+  // Инициализация формы с использованием Formik
   const formik = useFormik({
     initialValues: {
       article: '',
@@ -47,7 +103,7 @@ const EditSkill = () => {
       description: '',
       text: '',
       color: '#3498db',
-      image: null
+      // Удаляем поле image: null
     },
     validationSchema: Yup.object({
       article: Yup.string()
@@ -97,15 +153,15 @@ const EditSkill = () => {
           description: skill.description || '',
           text: skill.text || '',
           color: skill.color || '#3498db',
-          image: null // Изображение должно быть загружено отдельно пользователем
+          // Удаляем поле image: null
         });
         
         setExistingCategories(categories || []);
         
-        // Если у навыка есть изображение, устанавливаем URL для отображения
-        if (skill.image) {
-          setCurrentImageUrl(`http://localhost:5000/uploads/${skill.image}`);
-        }
+        // Удаляем установку URL для изображения
+        // if (skill.image) {
+        //   setCurrentImageUrl(`http://localhost:5000/uploads/${skill.image}`);
+        // }
       } catch (err) {
         setError(err.message || 'Не удалось загрузить данные навыка');
         console.error('Ошибка при загрузке данных:', err);
@@ -117,24 +173,24 @@ const EditSkill = () => {
     fetchData();
   }, [id]);
 
-  // Обработчик изменения изображения
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      formik.setFieldValue('image', file);
-      
-      // Создаем предпросмотр изображения
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-        setCurrentImageUrl(null); // Скрываем текущее изображение
-      };
-      reader.readAsDataURL(file);
-    } else {
-      formik.setFieldValue('image', null);
-      setImagePreview(null);
-    }
-  };
+  // Удаляем обработчик изменения изображения
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     formik.setFieldValue('image', file);
+  //     
+  //     // Создаем предпросмотр изображения
+  //     const reader = new FileReader();
+  //     reader.onload = () => {
+  //       setImagePreview(reader.result);
+  //       setCurrentImageUrl(null); // Скрываем текущее изображение
+  //     };
+  //     reader.readAsDataURL(file);
+  //   } else {
+  //     formik.setFieldValue('image', null);
+  //     setImagePreview(null);
+  //   }
+  // };
   
   // Обработчик изменения текста в редакторе Quill
   const handleTextChange = (value) => {
@@ -272,6 +328,7 @@ const EditSkill = () => {
             <div className="mb-3">
               <label htmlFor="text" className="form-label">Содержание</label>
               <ReactQuill
+                ref={quillRef}
                 theme="snow"
                 value={formik.values.text}
                 onChange={handleTextChange}
@@ -283,49 +340,6 @@ const EditSkill = () => {
               <small className="text-muted">
                 Используйте инструменты панели для форматирования текста
               </small>
-            </div>
-
-            {/* Изображение */}
-            <div className="mb-3">
-              <label htmlFor="image" className="form-label">Изображение</label>
-              <input
-                type="file"
-                id="image"
-                name="image"
-                className="form-control"
-                onChange={handleImageChange}
-                accept="image/*"
-                disabled={isLoading}
-              />
-              <small className="text-muted">
-                Оставьте поле пустым, если не хотите менять изображение
-              </small>
-
-              {/* Предпросмотр нового изображения */}
-              {imagePreview && (
-                <div className="mt-3">
-                  <h6>Новое изображение:</h6>
-                  <img 
-                    src={imagePreview} 
-                    alt="Предпросмотр" 
-                    className="img-thumbnail" 
-                    style={{ maxHeight: '200px' }} 
-                  />
-                </div>
-              )}
-
-              {/* Текущее изображение */}
-              {currentImageUrl && !imagePreview && (
-                <div className="mt-3">
-                  <h6>Текущее изображение:</h6>
-                  <img 
-                    src={currentImageUrl} 
-                    alt="Текущее изображение" 
-                    className="img-thumbnail" 
-                    style={{ maxHeight: '200px' }} 
-                  />
-                </div>
-              )}
             </div>
 
             {/* Кнопки действий */}

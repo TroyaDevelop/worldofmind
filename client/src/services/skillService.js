@@ -99,39 +99,27 @@ export const createSkill = async (skillData) => {
 // Функция для обновления навыка
 export const updateSkill = async (id, skillData) => {
   try {
-    // Создаем объект FormData для отправки данных, включая файлы
-    const formData = new FormData();
+    // Вместо FormData используем обычный объект JSON
+    const data = {
+      article: skillData.article,
+      category: skillData.category,
+      description: skillData.description || '',
+      text: skillData.text || '',
+      color: skillData.color || '#3498db'
+    };
     
-    // Добавляем все текстовые поля
-    formData.append('article', skillData.article);
-    formData.append('category', skillData.category);
-    
-    if (skillData.description) {
-      formData.append('description', skillData.description);
-    }
-    
-    if (skillData.text) {
-      formData.append('text', skillData.text);
-    }
-    
-    if (skillData.color) {
-      formData.append('color', skillData.color);
-    }
-    
-    // Добавляем изображение, если оно есть
-    if (skillData.image instanceof File) {
-      formData.append('image', skillData.image);
-    }
-    
-    // Настраиваем заголовок для отправки FormData
+    // Настраиваем заголовок для отправки JSON
     const config = {
       headers: {
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'application/json'
       }
     };
     
-    const response = await api.put(`/skills/${id}`, formData, config);
-    return response.data.skill;
+    // Выводим данные в консоль для отладки
+    console.log('Отправляем данные на сервер:', data);
+    
+    const response = await api.put(`/skills/${id}`, data, config);
+    return response.data;
   } catch (error) {
     if (error.response) {
       throw new Error(error.response.data.error || 'Не удалось обновить навык');
