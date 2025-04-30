@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const NeuronSkillsMap = ({ skills, activeCategory }) => {
@@ -6,14 +6,25 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
   const containerRef = useRef(null);
   const navigate = useNavigate();
   const animationRef = useRef(null);
+  const nodesRef = useRef([]);
+  const tooltipRef = useRef(null);
 
   // Фильтрация навыков в зависимости от выбранной категории
-  const filteredSkills = activeCategory === 'all'
-    ? skills
-    : skills.filter(skill => skill.category === activeCategory);
+  const filteredSkills = useMemo(() => {
+    return activeCategory === 'all'
+      ? skills
+      : skills.filter(skill => skill.category === activeCategory);
+  }, [skills, activeCategory]);
 
+  // Инициализация анимации
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current || !filteredSkills.length) return;
+
+    // Удаляем существующий tooltip, если он есть
+    if (tooltipRef.current) {
+      document.body.removeChild(tooltipRef.current);
+      tooltipRef.current = null;
+    }
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -35,13 +46,12 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
     const getRandomNumber = (min, max) => Math.random() * (max - min) + min;
 
     // Создаем узлы для навыков
-    const nodes = filteredSkills.map((skill, index) => {
+    const nodes = filteredSkills.map((skill) => {
       // Создаем случайное распределение узлов внутри контура мозга
-      // Большая часть узлов будет сосредоточена в верхней части
       const x = getRandomNumber(canvas.width * 0.1, canvas.width * 0.9);
       const y = getRandomNumber(canvas.height * 0.2, canvas.height * 0.8);
       
-      // Создаем случайное движение для анимации
+      // Возвращаем прежние значения скорости (было -0.01, 0.01)
       const vx = getRandomNumber(-0.1, 0.1);
       const vy = getRandomNumber(-0.1, 0.1);
       
@@ -62,6 +72,8 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         connections: [] // Связи с другими узлами
       };
     });
+
+    nodesRef.current = nodes;
 
     // Создаем связи между узлами одной категории
     const categoryMap = {};
@@ -94,6 +106,96 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         node.connections = Array.from(connections);
       });
     });
+
+    // Функция для отрисовки контура мозга
+    const drawBrainOutline = (ctx, width, height) => {
+      ctx.save();
+      
+      // Устанавливаем полупрозрачный серый цвет для контура
+      ctx.strokeStyle = 'rgba(100, 100, 100, 0.2)';
+      ctx.lineWidth = 2;
+      
+      // Масштабируем контур в зависимости от размеров канваса
+      const scale = Math.min(width / 800, height / 600);
+      
+      // Центрируем контур
+      const centerX = width / 2;
+      const centerY = height / 2;
+      
+      ctx.translate(centerX, centerY);
+      ctx.scale(scale, scale);
+      
+      // Рисуем контур мозга (простая аппроксимация)
+      ctx.beginPath();
+      
+      // Левая часть мозга
+      ctx.moveTo(-160, -110);
+      ctx.bezierCurveTo(-200, -150, -220, -80, -240, -30);
+      ctx.bezierCurveTo(-260, 40, -220, 120, -160, 140);
+      ctx.bezierCurveTo(-100, 160, -50, 120, -30, 80);
+      
+      // Правая часть мозга
+      ctx.moveTo(160, -110);
+      ctx.bezierCurveTo(200, -150, 220, -80, 240, -30);
+      ctx.bezierCurveTo(260, 40, 220, 120, 160, 140);
+      ctx.bezierCurveTo(100, 160, 50, 120, 30, 80);
+      
+      // Верхняя часть мозга
+      ctx.moveTo(-160, -110);
+      ctx.bezierCurveTo(-120, -130, -60, -150, 0, -150);
+      ctx.bezierCurveTo(60, -150, 120, -130, 160, -110);
+      
+      // Нижняя часть мозга и мозжечок
+      ctx.moveTo(-30, 80);
+      ctx.bezierCurveTo(-20, 100, 20, 100, 30, 80);
+      
+      // Мозжечок (дополнительные детали)
+      ctx.moveTo(-80, 120);
+      ctx.bezierCurveTo(-50, 140, 50, 140, 80, 120);
+      
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    // Создаем HTML-элемент подсказки и добавляем его в body
+    const createTooltip = () => {
+      const tooltip = document.createElement('div');
+      tooltip.className = 'neuron-tooltip';
+      tooltip.style.cssText = `
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translate(-50%, -100%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        pointer-events: none;
+        z-index: 9999;
+        max-width: 250px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        display: none;
+      `;
+      
+      const titleElement = document.createElement('div');
+      titleElement.style.fontWeight = 'bold';
+      tooltip.appendChild(titleElement);
+      
+      const descriptionElement = document.createElement('div');
+      descriptionElement.style.cssText = `
+        font-size: 0.8rem;
+        margin-top: 5px;
+        opacity: 0.9;
+      `;
+      tooltip.appendChild(descriptionElement);
+      
+      document.body.appendChild(tooltip);
+      return tooltip;
+    };
 
     // Анимация и отрисовка
     const draw = () => {
@@ -166,57 +268,75 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       animationRef.current = requestAnimationFrame(draw);
     };
     
-    // Функция для отрисовки контура мозга
-    const drawBrainOutline = (ctx, width, height) => {
-      ctx.save();
-      
-      // Устанавливаем полупрозрачный серый цвет для контура
-      ctx.strokeStyle = 'rgba(100, 100, 100, 0.2)';
-      ctx.lineWidth = 2;
-      
-      // Масштабируем контур в зависимости от размеров канваса
-      const scale = Math.min(width / 800, height / 600);
-      
-      // Центрируем контур
-      const centerX = width / 2;
-      const centerY = height / 2;
-      
-      ctx.translate(centerX, centerY);
-      ctx.scale(scale, scale);
-      
-      // Рисуем контур мозга (простая аппроксимация)
-      ctx.beginPath();
-      
-      // Левая часть мозга
-      ctx.moveTo(-160, -110);
-      ctx.bezierCurveTo(-200, -150, -220, -80, -240, -30);
-      ctx.bezierCurveTo(-260, 40, -220, 120, -160, 140);
-      ctx.bezierCurveTo(-100, 160, -50, 120, -30, 80);
-      
-      // Правая часть мозга
-      ctx.moveTo(160, -110);
-      ctx.bezierCurveTo(200, -150, 220, -80, 240, -30);
-      ctx.bezierCurveTo(260, 40, 220, 120, 160, 140);
-      ctx.bezierCurveTo(100, 160, 50, 120, 30, 80);
-      
-      // Верхняя часть мозга
-      ctx.moveTo(-160, -110);
-      ctx.bezierCurveTo(-120, -130, -60, -150, 0, -150);
-      ctx.bezierCurveTo(60, -150, 120, -130, 160, -110);
-      
-      // Нижняя часть мозга и мозжечок
-      ctx.moveTo(-30, 80);
-      ctx.bezierCurveTo(-20, 100, 20, 100, 30, 80);
-      
-      // Мозжечок (дополнительные детали)
-      ctx.moveTo(-80, 120);
-      ctx.bezierCurveTo(-50, 140, 50, 140, 80, 120);
-      
-      ctx.stroke();
-      ctx.restore();
-    };
+    // Запускаем анимацию
+    draw();
 
-    // Добавляем обработчик клика
+    // Создаем tooltip для отображения информации при наведении
+    const tooltip = createTooltip();
+    tooltipRef.current = tooltip;
+    
+    // Обработчик наведения мыши
+    const handleMouseMove = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      
+      let hoveredNode = null;
+      
+      // Проверяем, находится ли курсор над каким-либо узлом
+      for (let node of nodes) {
+        const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
+        // Возвращаем прежнюю зону определения наведения (было radius * 5)
+        if (distance <= node.radius * 2.5) {
+          hoveredNode = node;
+          break;
+        }
+      }
+      
+      if (hoveredNode) {
+        // Обновляем содержимое подсказки
+        const titleElement = tooltip.firstChild;
+        titleElement.textContent = hoveredNode.title;
+        
+        const descriptionElement = tooltip.lastChild;
+        if (hoveredNode.description) {
+          descriptionElement.textContent = hoveredNode.description;
+          descriptionElement.style.display = 'block';
+        } else {
+          descriptionElement.style.display = 'none';
+        }
+        
+        // Позиционируем подсказку
+        tooltip.style.left = `${event.clientX}px`;
+        tooltip.style.top = `${event.clientY - 10}px`;
+        tooltip.style.display = 'block';
+        setTimeout(() => {
+          tooltip.style.opacity = '1';
+        }, 10);
+        
+        canvas.style.cursor = 'pointer';
+      } else {
+        // Скрываем подсказку
+        tooltip.style.opacity = '0';
+        setTimeout(() => {
+          if (tooltip.style.opacity === '0') {
+            tooltip.style.display = 'none';
+          }
+        }, 200);
+        canvas.style.cursor = 'default';
+      }
+    };
+    
+    // Обработчик выхода мыши за пределы канваса
+    const handleMouseLeave = () => {
+      tooltip.style.opacity = '0';
+      setTimeout(() => {
+        tooltip.style.display = 'none';
+      }, 200);
+      canvas.style.cursor = 'default';
+    };
+    
+    // Обработчик клика по узлу
     const handleCanvasClick = (event) => {
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
@@ -225,32 +345,40 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       // Проверяем, попал ли клик в какой-либо узел
       for (let node of nodes) {
         const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
-        if (distance <= node.radius * 2) {
-          // Переходим на страницу выбранного навыка
+        // Возвращаем прежнюю зону для клика
+        if (distance <= node.radius * 2.5) {
           navigate(`/skills/${node.id}`);
           break;
         }
       }
     };
     
+    // Добавляем обработчики событий
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseleave', handleMouseLeave);
     canvas.addEventListener('click', handleCanvasClick);
     
-    // Запускаем анимацию
-    draw();
-    
-    // Очищаем ресурсы при размонтировании
+    // Очистка при размонтировании
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
       window.removeEventListener('resize', resizeCanvas);
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
       canvas.removeEventListener('click', handleCanvasClick);
+      
+      if (tooltipRef.current) {
+        document.body.removeChild(tooltipRef.current);
+        tooltipRef.current = null;
+      }
     };
-  }, [filteredSkills, navigate, activeCategory]);
+  }, [filteredSkills, navigate]);
 
   return (
     <div className="neuron-map-container" ref={containerRef}>
       <canvas ref={canvasRef} className="neuron-map-canvas"></canvas>
+      
       {!filteredSkills.length && (
         <div className="no-skills-message">
           <p>Нет навыков для отображения</p>
