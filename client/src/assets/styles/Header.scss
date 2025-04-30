@@ -1,0 +1,175 @@
+// Стили для заголовка (Header)
+.header {
+  background-color: var(--header-bg);
+  padding: 1rem 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+  
+  .logo {
+    color: var(--header-text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: #3498db;
+    }
+  }
+  
+  .search-form {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0 2rem;
+    flex: 1;
+    max-width: 500px;
+    
+    input {
+      background: transparent;
+      border: none;
+      padding: 0.5rem 1rem;
+      color: var(--header-text);
+      width: 100%;
+      outline: none;
+      
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+    
+    button {
+      background: transparent;
+      border: none;
+      padding: 0.5rem 1rem;
+      color: var(--header-text);
+      cursor: pointer;
+      transition: color 0.3s ease;
+      
+      &:hover {
+        color: #3498db;
+      }
+    }
+  }
+  
+  .theme-toggle {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--header-text);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #3498db;
+    }
+  }
+  
+  .nav {
+    ul {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    a {
+      color: var(--header-text);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      
+      &:hover {
+        color: #3498db;
+      }
+    }
+    
+    .add-button {
+      background-color: #3498db;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      
+      &:hover {
+        background-color: #2980b9;
+        color: #fff;
+      }
+    }
+  }
+  
+  .user-dropdown {
+    position: relative;
+    
+    .username {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      color: var(--header-text);
+      padding: 0.5rem;
+      border-radius: 4px;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: var(--card-bg);
+      min-width: 160px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      border-radius: 4px;
+      overflow: hidden;
+      
+      button {
+        width: 100%;
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border: none;
+        background: transparent;
+        color: var(--text-color);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+    
+    &:hover .dropdown-content {
+      display: block;
+    }
+  }
+}
