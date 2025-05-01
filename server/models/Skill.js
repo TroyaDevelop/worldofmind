@@ -88,10 +88,10 @@ class Skill {
         SELECT s.*, u.username 
         FROM skills s 
         JOIN users u ON s.user_id = u.id 
-        WHERE (s.article LIKE ? OR s.description LIKE ?)
+        WHERE (s.article LIKE ? OR s.description LIKE ? OR s.text LIKE ? OR s.category LIKE ?)
       `;
       
-      let params = [searchParam, searchParam];
+      let params = [searchParam, searchParam, searchParam, searchParam];
       
       // Если передан userId, добавляем условие проверки владельца
       if (userId) {

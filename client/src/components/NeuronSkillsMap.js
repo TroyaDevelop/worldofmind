@@ -44,16 +44,28 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
 
     // Функция для получения случайного числа в заданном диапазоне
     const getRandomNumber = (min, max) => Math.random() * (max - min) + min;
+    
+    // Адаптивный размер нейронов в зависимости от количества навыков
+    const getNodeRadius = (count) => {
+      if (count <= 10) return 6; // Для малого количества навыков
+      if (count <= 30) return 5; // Для среднего количества
+      if (count <= 50) return 4; // Для большого количества
+      return 3; // Для очень большого количества
+    };
+    
+    // Определяем размер нейронов на основе количества
+    const nodeRadius = getNodeRadius(filteredSkills.length);
 
     // Создаем узлы для навыков
     const nodes = filteredSkills.map((skill) => {
-      // Создаем случайное распределение узлов внутри контура мозга
-      const x = getRandomNumber(canvas.width * 0.1, canvas.width * 0.9);
-      const y = getRandomNumber(canvas.height * 0.2, canvas.height * 0.8);
+      // Создаем случайное распределение узлов по всей площади канваса
+      // Уменьшаем отступы от края для более плотного расположения
+      const x = getRandomNumber(canvas.width * 0.04, canvas.width * 0.96);
+      const y = getRandomNumber(canvas.height * 0.04, canvas.height * 0.96);
       
-      // Возвращаем прежние значения скорости (было -0.01, 0.01)
-      const vx = getRandomNumber(-0.1, 0.1);
-      const vy = getRandomNumber(-0.1, 0.1);
+      // Уменьшаем скорость движения для более стабильного отображения
+      const vx = getRandomNumber(-0.08, 0.08);
+      const vy = getRandomNumber(-0.08, 0.08);
       
       // Используем цвет навыка или случайный цвет
       const color = skill.color || `hsl(${getRandomNumber(0, 360)}, 70%, 60%)`;
@@ -64,7 +76,7 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         y,
         vx,
         vy,
-        radius: 8, // Размер узла
+        radius: nodeRadius, // Уменьшенный адаптивный размер узла
         color,
         title: skill.article,
         description: skill.description || '',
@@ -86,12 +98,21 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
     });
     
     // Для каждой категории создаем связи между узлами
+    // Адаптируем количество связей - меньше связей для большего количества узлов
     Object.values(categoryMap).forEach(categoryNodes => {
+      const getOptimalConnectionCount = (count) => {
+        if (count <= 5) return Math.min(count - 1, 2);
+        if (count <= 15) return 2;
+        return 1; // Для очень большого количества только одна связь
+      };
+      
+      const connectionsCount = getOptimalConnectionCount(categoryNodes.length);
+      
       categoryNodes.forEach(node => {
-        // Соединяем каждый узел с 2-3 случайными узлами из той же категории
+        // Соединяем каждый узел с оптимальным числом узлов из той же категории
         const nodesToConnect = Math.min(
           categoryNodes.length - 1, 
-          Math.floor(getRandomNumber(2, 4))
+          Math.floor(getRandomNumber(1, connectionsCount + 1))
         );
         
         const connections = new Set();
@@ -106,56 +127,6 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         node.connections = Array.from(connections);
       });
     });
-
-    // Функция для отрисовки контура мозга
-    const drawBrainOutline = (ctx, width, height) => {
-      ctx.save();
-      
-      // Устанавливаем полупрозрачный серый цвет для контура
-      ctx.strokeStyle = 'rgba(100, 100, 100, 0.2)';
-      ctx.lineWidth = 2;
-      
-      // Масштабируем контур в зависимости от размеров канваса
-      const scale = Math.min(width / 800, height / 600);
-      
-      // Центрируем контур
-      const centerX = width / 2;
-      const centerY = height / 2;
-      
-      ctx.translate(centerX, centerY);
-      ctx.scale(scale, scale);
-      
-      // Рисуем контур мозга (простая аппроксимация)
-      ctx.beginPath();
-      
-      // Левая часть мозга
-      ctx.moveTo(-160, -110);
-      ctx.bezierCurveTo(-200, -150, -220, -80, -240, -30);
-      ctx.bezierCurveTo(-260, 40, -220, 120, -160, 140);
-      ctx.bezierCurveTo(-100, 160, -50, 120, -30, 80);
-      
-      // Правая часть мозга
-      ctx.moveTo(160, -110);
-      ctx.bezierCurveTo(200, -150, 220, -80, 240, -30);
-      ctx.bezierCurveTo(260, 40, 220, 120, 160, 140);
-      ctx.bezierCurveTo(100, 160, 50, 120, 30, 80);
-      
-      // Верхняя часть мозга
-      ctx.moveTo(-160, -110);
-      ctx.bezierCurveTo(-120, -130, -60, -150, 0, -150);
-      ctx.bezierCurveTo(60, -150, 120, -130, 160, -110);
-      
-      // Нижняя часть мозга и мозжечок
-      ctx.moveTo(-30, 80);
-      ctx.bezierCurveTo(-20, 100, 20, 100, 30, 80);
-      
-      // Мозжечок (дополнительные детали)
-      ctx.moveTo(-80, 120);
-      ctx.bezierCurveTo(-50, 140, 50, 140, 80, 120);
-      
-      ctx.stroke();
-      ctx.restore();
-    };
 
     // Создаем HTML-элемент подсказки и добавляем его в body
     const createTooltip = () => {
@@ -201,12 +172,9 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
     const draw = () => {
       // Очищаем канвас
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Рисуем контур мозга в фоне
-      drawBrainOutline(ctx, canvas.width, canvas.height);
       
-      // Рисуем связи между узлами
-      ctx.lineWidth = 0.5;
+      // Рисуем связи между узлами - уменьшаем толщину для более изящного вида
+      ctx.lineWidth = 0.4;
       nodes.forEach(node => {
         node.connections.forEach(targetId => {
           const targetNode = nodes.find(n => n.id === targetId);
@@ -234,7 +202,8 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         node.y += node.vy;
         
         // Отражаем от стенок с небольшим смещением
-        const padding = 30;
+        // Уменьшаем отступ для более плотного расположения
+        const padding = 20;
         if (node.x < padding || node.x > canvas.width - padding) {
           node.vx = -node.vx;
           node.x = Math.max(padding, Math.min(node.x, canvas.width - padding));
@@ -244,24 +213,28 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
           node.y = Math.max(padding, Math.min(node.y, canvas.height - padding));
         }
         
-        // Рисуем свечение узла
-        const glow = ctx.createRadialGradient(
-          node.x, node.y, 0,
-          node.x, node.y, node.radius * 3
-        );
-        glow.addColorStop(0, node.color);
-        glow.addColorStop(1, 'rgba(0,0,0,0)');
+        // Проверяем, светлая ли тема (проверка по цвету фона)
+        const isLightTheme = document.body.classList.contains('dark-mode') === false;
         
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius * 3, 0, Math.PI * 2);
-        ctx.fill();
+        if (isLightTheme) {
+          // Оставляем умеренную тень для светлой темы, но не слишком большую
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetX = 1;
+          ctx.shadowOffsetY = 1;
+        }
         
-        // Рисуем сам узел
+        // Рисуем сам узел без свечения
         ctx.fillStyle = node.color;
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
         ctx.fill();
+        
+        // Сбрасываем тень после отрисовки нейрона
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
       });
       
       // Запускаем следующий кадр анимации
@@ -284,10 +257,12 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       let hoveredNode = null;
       
       // Проверяем, находится ли курсор над каким-либо узлом
+      // Увеличиваем область обнаружения при меньшем размере нейронов
+      const detectionMultiplier = 10 / nodeRadius; // Чем меньше нейрон, тем больше множитель
+      
       for (let node of nodes) {
         const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
-        // Возвращаем прежнюю зону определения наведения (было radius * 5)
-        if (distance <= node.radius * 2.5) {
+        if (distance <= node.radius * Math.min(3, detectionMultiplier)) {
           hoveredNode = node;
           break;
         }
@@ -343,10 +318,12 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       const y = event.clientY - rect.top;
       
       // Проверяем, попал ли клик в какой-либо узел
+      // Используем такой же множитель для обнаружения как и при наведении
+      const detectionMultiplier = 10 / nodeRadius;
+      
       for (let node of nodes) {
         const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
-        // Возвращаем прежнюю зону для клика
-        if (distance <= node.radius * 2.5) {
+        if (distance <= node.radius * Math.min(3, detectionMultiplier)) {
           navigate(`/skills/${node.id}`);
           break;
         }

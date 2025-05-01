@@ -42,8 +42,8 @@ export const getSkillById = async (id) => {
 // Функция для поиска навыков
 export const searchSkills = async (query) => {
   try {
-    const response = await api.get(`/skills/search?query=${encodeURIComponent(query)}`);
-    return response.data.skills;
+    const response = await api.get(`/skills/search/public?q=${encodeURIComponent(query)}`);
+    return response.data.skills || response.data; // Обрабатываем оба возможных формата ответа
   } catch (error) {
     if (error.response) {
       throw new Error(error.response.data.error || 'Не удалось выполнить поиск');

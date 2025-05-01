@@ -254,7 +254,7 @@ exports.searchSkills = async (req, res) => {
   try {
     const query = req.query.q;
     
-    if (!query) {
+    if (!query || query.trim() === '') {
       return res.status(400).json({ error: 'Параметр поиска не указан' });
     }
     
@@ -264,7 +264,7 @@ exports.searchSkills = async (req, res) => {
       return res.status(500).json({ error: skills.error });
     }
     
-    res.status(200).json(skills);
+    res.status(200).json({ skills: skills });
   } catch (error) {
     console.error('Ошибка поиска навыков:', error);
     res.status(500).json({ error: 'Ошибка при поиске навыков' });

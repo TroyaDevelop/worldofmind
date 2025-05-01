@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllSkills, getCategories } from '../services/skillService';
-import { FaPlus, FaSearch, FaBrain, FaList } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaBrain, FaList, FaFilter } from 'react-icons/fa';
 import NeuronSkillsMap from '../components/NeuronSkillsMap';
 
 const Home = () => {
@@ -11,6 +11,7 @@ const Home = () => {
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [viewMode, setViewMode] = useState('neuron'); // 'neuron' или 'list'
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Загрузка навыков и категорий при монтировании компонента
   useEffect(() => {
@@ -32,6 +33,18 @@ const Home = () => {
 
     fetchData();
   }, []);
+
+  // Закрытие выпадающего списка при клике вне его
+  useEffect(() => {
+    const closeDropdown = (e) => {
+      if (isDropdownOpen && !e.target.closest('.category-dropdown')) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('click', closeDropdown);
+    return () => document.removeEventListener('click', closeDropdown);
+  }, [isDropdownOpen]);
 
   // Функция для отображения навыков выбранной категории или всех навыков
   const getFilteredSkills = () => {
@@ -55,6 +68,11 @@ const Home = () => {
     });
     
     return groupedSkills;
+  };
+
+  // Функция для отображения текущей выбранной категории
+  const getActiveCategoryText = () => {
+    return activeCategory === 'all' ? 'Все категории' : activeCategory;
   };
 
   if (loading) {
@@ -115,23 +133,46 @@ const Home = () => {
         </button>
       </div>
 
-      {/* Фильтр категорий */}
-      <div className="category-filter mb-4">
-        <button
-          className={`btn ${activeCategory === 'all' ? 'btn-primary' : 'btn-outline-primary'} me-2 mb-2`}
-          onClick={() => setActiveCategory('all')}
-        >
-          Все категории
-        </button>
-        {categories.map((category) => (
-          <button
-            key={category}
-            className={`btn ${activeCategory === category ? 'btn-primary' : 'btn-outline-primary'} me-2 mb-2`}
-            onClick={() => setActiveCategory(category)}
+      {/* Выпадающий список категорий */}
+      <div className="category-dropdown-container mb-4">
+        <div className="category-dropdown">
+          <button 
+            className="btn btn-outline-primary dropdown-toggle d-flex align-items-center justify-content-between"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDropdownOpen(!isDropdownOpen);
+            }}
           >
-            {category}
+            <span>
+              <FaFilter className="me-2" /> {getActiveCategoryText()}
+            </span>
           </button>
-        ))}
+          {isDropdownOpen && (
+            <div className="dropdown-menu show">
+              <button 
+                className={`dropdown-item ${activeCategory === 'all' ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveCategory('all');
+                  setIsDropdownOpen(false);
+                }}
+              >
+                Все категории
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  className={`dropdown-item ${activeCategory === category ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveCategory(category);
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Если навыков нет */}

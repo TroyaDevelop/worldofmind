@@ -9,17 +9,17 @@
   --dark-color: #2c3e50;
   --gray-color: #95a5a6;
   
-  /* Цвета для светлой темы */
-  --bg-color: #f8f9fa;
+  /* Цвета для светлой темы - смягченные */
+  --bg-color: #f2f2e9;        /* Было #f8f9fa, теперь более теплый оттенок */
   --text-color: #333;
-  --card-bg: #fff;
-  --card-header-bg: #f8f9fa;
+  --card-bg: #f8f8f2;         /* Было #fff, теперь слегка кремовый */
+  --card-header-bg: #eaeae2;  /* Было #f8f9fa, теперь более теплый */
   --card-border: rgba(0, 0, 0, 0.05);
   --header-bg: #2c3e50;
   --header-text: #ecf0f1;
-  --input-bg: #fff;
+  --input-bg: #f6f6f0;        /* Было #fff, теперь мягче */
   --input-border: #ddd;
-  --modal-bg: #fff;
+  --modal-bg: #f8f8f2;        /* Было #fff, теперь слегка кремовый */
   --modal-border: #dee2e6;
   --blockquote-color: #6c757d;
   --input-text-color: #333;
@@ -714,4 +714,94 @@ body {
 
 .dark-mode .ql-picker-item {
   color: var(--input-text-color);
+}
+
+/* Стили для выпадающего списка категорий */
+.category-dropdown-container {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 0 1.5rem; /* Убрано центрирование (было margin: 0 auto 1.5rem) */
+  z-index: 10;
+}
+
+.category-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.category-dropdown .btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.category-dropdown .btn::after {
+  content: '';
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+  border-top: 5px solid;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+
+.category-dropdown .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 200px; /* Уменьшена максимальная высота (было 300px) */
+  overflow-y: auto;
+  margin-top: 5px;
+  padding: 8px 0;
+  border-radius: 6px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--input-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  scrollbar-width: thin; /* Тонкий скроллбар для Firefox */
+}
+
+/* Стили для скроллбара */
+.category-dropdown .dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-dropdown .dropdown-menu::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.category-dropdown .dropdown-menu::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.category-dropdown .dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.category-dropdown .dropdown-item {
+  padding: 8px 15px;
+  color: var(--text-color);
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: block;
+}
+
+.category-dropdown .dropdown-item:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.category-dropdown .dropdown-item.active {
+  background-color: rgba(52, 152, 219, 0.2);
+  font-weight: 500;
 }
