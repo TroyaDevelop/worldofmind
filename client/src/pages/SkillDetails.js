@@ -114,7 +114,6 @@ const SkillDetails = () => {
         <div className="card-body">
           {skill.description && (
             <div className="mb-4">
-              <h5>Описание</h5>
               <p>{skill.description}</p>
             </div>
           )}

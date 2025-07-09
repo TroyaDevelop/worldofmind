@@ -80,6 +80,7 @@ exports.create = async (req, res) => {
 
 // Обновление навыка
 exports.update = async (req, res) => {
+  console.time('server_updateSkill');
   try {
     const userId = req.user.id;
     const skillId = req.params.id;
@@ -122,9 +123,11 @@ exports.update = async (req, res) => {
     }
     
     res.status(200).json(updatedSkill);
+    console.timeEnd('server_updateSkill');
   } catch (error) {
     console.error('Ошибка при обновлении навыка:', error);
     res.status(500).json({ error: 'Ошибка сервера при обновлении навыка' });
+    console.timeEnd('server_updateSkill');
   }
 };
 

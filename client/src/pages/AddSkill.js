@@ -115,7 +115,8 @@ const AddSkill = () => {
       category: '',
       description: '',
       text: '',
-      color: '#3498db',
+      level: 'in_progress', // новое поле: степень изучения
+      color: '#FDFF73', // по умолчанию "в процессе"
       image: null
     },
     validationSchema: Yup.object({
@@ -128,15 +129,19 @@ const AddSkill = () => {
       description: Yup.string()
         .max(500, 'Описание не должно превышать 500 символов'),
       text: Yup.string(),
-      color: Yup.string()
+      level: Yup.string().required('Выберите степень изучения'),
     }),
     onSubmit: async (values) => {
       try {
         setIsLoading(true);
         setError(null);
-        
+        // Определяем цвет по степени изучения
+        let color = '#FDFF73';
+        if (values.level === 'mastered') color = '#67E667';
+        if (values.level === 'postponed') color = '#e74c3c';
+        const skillData = { ...values, color };
         // Отправка данных на сервер
-        const result = await createSkill(values);
+        const result = await createSkill(skillData);
         
         // После успешного создания перенаправляем на страницу навыка
         navigate(`/skills/${result.id}`);
@@ -238,31 +243,32 @@ const AddSkill = () => {
               </small>
             </div>
 
-            {/* Цвет */}
+            {/* Степень изучения */}
             <div className="mb-3">
-              <label htmlFor="color" className="form-label">Цвет</label>
-              <div className="input-group">
-                <input
-                  type="color"
-                  id="color"
-                  name="color"
-                  className="form-control form-control-color"
-                  value={formik.values.color}
-                  onChange={formik.handleChange}
-                  disabled={isLoading}
-                  title="Выберите цвет"
-                />
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formik.values.color}
-                  onChange={(e) => formik.setFieldValue('color', e.target.value)}
-                  disabled={isLoading}
-                />
+              <label className="form-label">Степень изучения</label>
+              <div className="d-flex gap-3">
+                <div>
+                  <input type="radio" id="level-mastered" name="level" value="mastered"
+                    checked={formik.values.level === 'mastered'}
+                    onChange={formik.handleChange} disabled={isLoading} />
+                  <label htmlFor="level-mastered" style={{ color: '#67E667', marginLeft: 4 }}>Полностью изучено</label>
+                </div>
+                <div>
+                  <input type="radio" id="level-inprogress" name="level" value="in_progress"
+                    checked={formik.values.level === 'in_progress'}
+                    onChange={formik.handleChange} disabled={isLoading} />
+                  <label htmlFor="level-inprogress" style={{ color: '#FDFF73', marginLeft: 4 }}>В процессе</label>
+                </div>
+                <div>
+                  <input type="radio" id="level-postponed" name="level" value="postponed"
+                    checked={formik.values.level === 'postponed'}
+                    onChange={formik.handleChange} disabled={isLoading} />
+                  <label htmlFor="level-postponed" style={{ color: '#e74c3c', marginLeft: 4 }}>Обучение отложено</label>
+                </div>
               </div>
-              <small className="text-muted">
-                Цвет будет использоваться для обозначения навыка
-              </small>
+              {formik.touched.level && formik.errors.level && (
+                <div className="text-danger small">{formik.errors.level}</div>
+              )}
             </div>
 
             {/* Описание */}
@@ -353,3 +359,4 @@ const AddSkill = () => {
 };
 
 export default AddSkill;
+// Нет вызова formik.setValues — ничего менять не нужно, форма работает корректно, если не добавлять setValues.

@@ -45,6 +45,16 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
     // Функция для получения случайного числа в заданном диапазоне
     const getRandomNumber = (min, max) => Math.random() * (max - min) + min;
     
+    // Создаем декоративные фоновые частицы для красивого визуального эффекта
+    const backgroundParticles = Array.from({ length: 50 }, () => ({
+      x: getRandomNumber(0, canvas.width),
+      y: getRandomNumber(0, canvas.height),
+      radius: getRandomNumber(1.5, 3.5),
+      vx: getRandomNumber(-0.2, 0.2),
+      vy: getRandomNumber(-0.2, 0.2),
+      alpha: getRandomNumber(0.4, 0.9)
+    }));
+    
     // Адаптивный размер нейронов в зависимости от количества навыков
     const getNodeRadius = (count) => {
       if (count <= 10) return 6; // Для малого количества навыков
@@ -173,8 +183,60 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       // Очищаем канвас
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
+      // Определяем, светлая ли тема
+      const isLightTheme = document.body.classList.contains('dark-mode') === false;
+      
+      // Рисуем красивый градиентный фон
+      const gradientBg = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 0,
+        canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 1.5
+      );
+      
+      if (isLightTheme) {
+        // Светлый градиентный фон с более насыщенными цветами, близкими к тёмной теме
+        gradientBg.addColorStop(0, 'rgba(235, 240, 255, 1)');
+        gradientBg.addColorStop(0.5, 'rgba(225, 235, 250, 0.95)');
+        gradientBg.addColorStop(1, 'rgba(215, 225, 245, 0.9)');
+      } else {
+        // Тёмный градиентный фон
+        gradientBg.addColorStop(0, 'rgba(25, 25, 35, 1)');
+        gradientBg.addColorStop(1, 'rgba(15, 15, 25, 0.9)');
+      }
+      
+      ctx.fillStyle = gradientBg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Рисуем тонкий узор на фоне
+      const drawPattern = () => {
+        const patternSize = 30;
+        const patternOpacity = isLightTheme ? 0.05 : 0.07; // Увеличиваем немного непрозрачность в светлой теме
+        
+        ctx.strokeStyle = isLightTheme ? `rgba(70, 90, 180, ${patternOpacity})` : `rgba(255, 255, 255, ${patternOpacity})`;
+        ctx.lineWidth = 0.5;
+        
+        // Горизонтальные линии
+        for (let y = 0; y < canvas.height; y += patternSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+        
+        // Вертикальные линии
+        for (let x = 0; x < canvas.width; x += patternSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+      };
+      
+      // Рисуем узор
+      drawPattern();
+      
       // Рисуем связи между узлами - уменьшаем толщину для более изящного вида
-      ctx.lineWidth = 0.4;
+      ctx.lineWidth = isLightTheme ? 0.8 : 0.4; // Делаем линии толще в светлой теме
+      
       nodes.forEach(node => {
         node.connections.forEach(targetId => {
           const targetNode = nodes.find(n => n.id === targetId);
@@ -186,11 +248,21 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
             gradient.addColorStop(0, node.color);
             gradient.addColorStop(1, targetNode.color);
             
+            if (isLightTheme) {
+              // В светлой теме делаем тень для связей менее заметной
+              ctx.shadowColor = 'rgba(0, 0, 0, 0.15)'; // Уменьшаем непрозрачность с 0.3 до 0.15
+              ctx.shadowBlur = 1; // Уменьшаем размытие с 2 до 1
+            }
+            
             ctx.strokeStyle = gradient;
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(targetNode.x, targetNode.y);
             ctx.stroke();
+            
+            // Сбрасываем тень после отрисовки связи
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
           }
         });
       });
@@ -217,15 +289,28 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         const isLightTheme = document.body.classList.contains('dark-mode') === false;
         
         if (isLightTheme) {
-          // Оставляем умеренную тень для светлой темы, но не слишком большую
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-          ctx.shadowBlur = 4;
-          ctx.shadowOffsetX = 1;
-          ctx.shadowOffsetY = 1;
+          // Уменьшаем тень для светлой темы, делаем её более субтильной
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'; // Снижаем непрозрачность с 0.5 до 0.2
+          ctx.shadowBlur = 3; // Уменьшаем размытие с 6 до 3
+          ctx.shadowOffsetX = 0.5; // Уменьшаем смещение с 1 до 0.5
+          ctx.shadowOffsetY = 0.5; // Уменьшаем смещение с 1 до 0.5
+          
+          // Делаем более тонкий контур
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'; // Уменьшаем непрозрачность с 0.6 до 0.3
+          ctx.lineWidth = 0.5; // Уменьшаем толщину с 1 до 0.5
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, node.radius + 0.5, 0, Math.PI * 2); // Уменьшаем также размер контура
+          ctx.stroke();
+        } else {
+          // Небольшая тень для темной темы
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+          ctx.shadowBlur = 5;
         }
         
-        // Рисуем сам узел без свечения
-        ctx.fillStyle = node.color;
+        // Рисуем сам узел с более насыщенным цветом в светлой теме
+        ctx.fillStyle = isLightTheme 
+          ? node.color  // Используем оригинальный цвет
+          : node.color; // В темной теме оставляем тот же цвет
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -235,6 +320,50 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         ctx.shadowBlur = 0;
         ctx.shadowOffsetX = 0;
         ctx.shadowOffsetY = 0;
+      });
+      
+      // Рисуем фоновые частицы
+      backgroundParticles.forEach(particle => {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+        
+        // Отражение от краев
+        if (particle.x < 0 || particle.x > canvas.width) {
+          particle.vx = -particle.vx;
+          particle.x = Math.max(0, Math.min(particle.x, canvas.width));
+        }
+        if (particle.y < 0 || particle.y > canvas.height) {
+          particle.vy = -particle.vy;
+          particle.y = Math.max(0, Math.min(particle.y, canvas.height));
+        }
+        
+        // Цвет частиц в зависимости от темы
+        if (isLightTheme) {
+          // Более насыщенный и заметный синий цвет для частиц в светлой теме
+          ctx.fillStyle = `rgba(70, 100, 255, ${particle.alpha * 0.6})`; // Увеличенная непрозрачность
+        } else {
+          ctx.fillStyle = `rgba(255, 255, 255, ${particle.alpha * 0.5})`; // Белый цвет для темной темы
+        }
+        
+        // Рисуем частицу
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Добавим более заметное свечение для частиц в обеих темах
+        if (isLightTheme) {
+          ctx.shadowColor = 'rgba(50, 80, 255, 0.3)'; // Уменьшаем непрозрачность с 0.6 до 0.3
+          ctx.shadowBlur = 4; // Уменьшаем размытие с 7 до 4
+        } else {
+          ctx.shadowColor = 'rgba(255, 255, 255, 0.4)';
+          ctx.shadowBlur = 5;
+        }
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        
+        // Сбрасываем тени после отрисовки частицы
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
       });
       
       // Запускаем следующий кадр анимации

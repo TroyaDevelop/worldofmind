@@ -102,7 +102,8 @@ const EditSkill = () => {
       category: '',
       description: '',
       text: '',
-      color: '#3498db',
+      level: 'in_progress', // новое поле: степень изучения
+      color: '#FDFF73', // по умолчанию "в процессе"
       // Удаляем поле image: null
     },
     validationSchema: Yup.object({
@@ -115,17 +116,21 @@ const EditSkill = () => {
       description: Yup.string()
         .max(500, 'Описание не должно превышать 500 символов'),
       text: Yup.string(),
-      color: Yup.string()
+      level: Yup.string().required('Выберите степень изучения'),
     }),
     onSubmit: async (values) => {
       try {
         setIsLoading(true);
         setError(null);
-        
-        // Отправка данных на сервер
-        const result = await updateSkill(id, values);
-        
-        // После успешного обновления перенаправляем на страницу навыка
+        // Диагностика времени
+        console.time('updateSkill');
+        // Определяем цвет по степени изучения
+        let color = '#FDFF73';
+        if (values.level === 'mastered') color = '#67E667';
+        if (values.level === 'postponed') color = '#e74c3c';
+        const skillData = { ...values, color };
+        await updateSkill(id, skillData);
+        console.timeEnd('updateSkill');
         navigate(`/skills/${id}`);
       } catch (err) {
         setError(err.message || 'Не удалось обновить навык');
@@ -147,14 +152,22 @@ const EditSkill = () => {
         ]);
         
         // Устанавливаем значения формы из полученных данных
-        formik.setValues({
-          article: skill.article,
-          category: skill.category,
-          description: skill.description || '',
-          text: skill.text || '',
-          color: skill.color || '#3498db',
-          // Удаляем поле image: null
-        });
+        // Только если пользователь ещё не менял level вручную
+        if (
+          formik.values.article === '' &&
+          formik.values.category === '' &&
+          formik.values.description === '' &&
+          formik.values.text === ''
+        ) {
+          formik.setValues({
+            article: skill.article,
+            category: skill.category,
+            description: skill.description || '',
+            text: skill.text || '',
+            level: skill.level || 'in_progress',
+            color: skill.color || '#FDFF73',
+          });
+        }
         
         setExistingCategories(categories || []);
         
@@ -171,7 +184,7 @@ const EditSkill = () => {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, formik]);
 
   // Удаляем обработчик изменения изображения
   // const handleImageChange = (e) => {
@@ -278,31 +291,32 @@ const EditSkill = () => {
               </small>
             </div>
 
-            {/* Цвет */}
+            {/* Степень изучения */}
             <div className="mb-3">
-              <label htmlFor="color" className="form-label">Цвет</label>
-              <div className="input-group">
-                <input
-                  type="color"
-                  id="color"
-                  name="color"
-                  className="form-control form-control-color"
-                  value={formik.values.color}
-                  onChange={formik.handleChange}
-                  disabled={isLoading}
-                  title="Выберите цвет"
-                />
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formik.values.color}
-                  onChange={(e) => formik.setFieldValue('color', e.target.value)}
-                  disabled={isLoading}
-                />
+              <label className="form-label">Степень изучения</label>
+              <div className="d-flex gap-3">
+                <div>
+                  <input type="radio" id="level-mastered" name="level" value="mastered"
+                    checked={formik.values.level === 'mastered'}
+                    onChange={formik.handleChange} disabled={isLoading} />
+                  <label htmlFor="level-mastered" style={{ color: '#67E667', marginLeft: 4 }}>Полностью изучено</label>
+                </div>
+                <div>
+                  <input type="radio" id="level-inprogress" name="level" value="in_progress"
+                    checked={formik.values.level === 'in_progress'}
+                    onChange={formik.handleChange} disabled={isLoading} />
+                  <label htmlFor="level-inprogress" style={{ color: '#FDFF73', marginLeft: 4 }}>В процессе</label>
+                </div>
+                <div>
+                  <input type="radio" id="level-postponed" name="level" value="postponed"
+                    checked={formik.values.level === 'postponed'}
+                    onChange={formik.handleChange} disabled={isLoading} />
+                  <label htmlFor="level-postponed" style={{ color: '#e74c3c', marginLeft: 4 }}>Обучение отложено</label>
+                </div>
               </div>
-              <small className="text-muted">
-                Цвет будет использоваться для обозначения навыка
-              </small>
+              {formik.touched.level && formik.errors.level && (
+                <div className="text-danger small">{formik.errors.level}</div>
+              )}
             </div>
 
             {/* Описание */}
