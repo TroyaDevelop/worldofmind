@@ -10,6 +10,7 @@
     "install-all": "npm install && cd client && npm install && cd ../server && npm install"
   },
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "sass": "^1.89.2"
   }
 }
