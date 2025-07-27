@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import '../assets/styles/SkillDetails.css';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSkillById, deleteSkill } from '../services/skillService';
 import { FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa';
@@ -112,14 +113,9 @@ const SkillDetails = () => {
           </span>
         </div>
         <div className="card-body">
-          {skill.description && (
-            <div className="mb-4">
-              <p>{skill.description}</p>
-            </div>
-          )}
 
           {skill.text && (
-            <div className="mt-4">
+            <div>
               <div 
                 className="skill-content"
                 dangerouslySetInnerHTML={{ __html: skill.text }}

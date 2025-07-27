@@ -1,0 +1,80 @@
+.skill-content {
+  line-height: 1.1;
+  font-size: 1.05rem;
+  color: #eaeaea;
+}
+
+.skill-content > * {
+  margin: 0;
+  padding: 0;
+}
+
+.skill-content > *:not(:last-child) {
+  margin-bottom: 0.1em;
+}
+
+.skill-content h1,
+.skill-content h2,
+.skill-content h3,
+.skill-content h4,
+.skill-content h5,
+.skill-content h6 {
+  margin-top: 0.1em;
+  margin-bottom: 0.05em;
+  font-weight: 700;
+  color: #fff;
+}
+
+.skill-content h1:first-child,
+.skill-content h2:first-child,
+.skill-content h3:first-child,
+.skill-content h4:first-child,
+.skill-content h5:first-child,
+.skill-content h6:first-child {
+  margin-top: 0;
+}
+
+/* Уменьшаем отступ между последовательными заголовками */
+.skill-content h1 + h1, .skill-content h1 + h2, .skill-content h1 + h3, .skill-content h1 + h4, .skill-content h1 + h5, .skill-content h1 + h6,
+.skill-content h2 + h1, .skill-content h2 + h2, .skill-content h2 + h3, .skill-content h2 + h4, .skill-content h2 + h5, .skill-content h2 + h6,
+.skill-content h3 + h1, .skill-content h3 + h2, .skill-content h3 + h3, .skill-content h3 + h4, .skill-content h3 + h5, .skill-content h3 + h6,
+.skill-content h4 + h1, .skill-content h4 + h2, .skill-content h4 + h3, .skill-content h4 + h4, .skill-content h4 + h5, .skill-content h4 + h6,
+.skill-content h5 + h1, .skill-content h5 + h2, .skill-content h5 + h3, .skill-content h5 + h4, .skill-content h5 + h5, .skill-content h5 + h6,
+.skill-content h6 + h1, .skill-content h6 + h2, .skill-content h6 + h3, .skill-content h6 + h4, .skill-content h6 + h5, .skill-content h6 + h6 {
+  margin-top: 0.05em;
+}
+
+.skill-content p {
+  margin: 0;
+  margin-bottom: 0.1em;
+}
+
+.skill-content ul,
+.skill-content ol {
+  margin: 0.2em 0 0.2em 2em;
+}
+
+.skill-content strong {
+  color: #fff;
+}
+
+.skill-content em {
+  color: #b0b0b0;
+}
+
+.skill-content code {
+  background: #23272e;
+  color: #ffb86c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.98em;
+}
+
+.skill-content pre {
+  background: #23272e;
+  color: #ffb86c;
+  padding: 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.5em 0;
+}

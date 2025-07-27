@@ -15,6 +15,7 @@ import SearchPage from './pages/SearchPage';
 
 // Стили
 import './App.css';
+import './assets/styles/quill-custom.css';
 
 // Защищенный маршрут - требуется авторизация
 const ProtectedRoute = ({ children }) => {
