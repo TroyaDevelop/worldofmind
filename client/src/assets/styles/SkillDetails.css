@@ -1,7 +1,7 @@
 .skill-content {
   line-height: 1.1;
   font-size: 1.05rem;
-  color: #eaeaea;
+  color: var(--text-color, #eaeaea);
 }
 
 .skill-content > * {
@@ -22,7 +22,7 @@
   margin-top: 0.1em;
   margin-bottom: 0.05em;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-color, #fff);
 }
 
 .skill-content h1:first-child,
@@ -47,15 +47,187 @@
 .skill-content p {
   margin: 0;
   margin-bottom: 0.1em;
+  color: var(--text-color, #eaeaea);
 }
 
 .skill-content ul,
 .skill-content ol {
   margin: 0.2em 0 0.2em 2em;
+  color: var(--text-color, #eaeaea);
+}
+
+.skill-content li {
+  color: var(--text-color, #eaeaea);
 }
 
 .skill-content strong {
-  color: #fff;
+  color: var(--text-color, #fff);
+}
+
+.skill-content blockquote {
+  border-left: 4px solid #6c757d;
+  margin: 1em 0;
+  padding: 0.5em 0 0.5em 1em;
+  background-color: rgba(108, 117, 125, 0.1);
+  font-style: italic;
+  color: var(--text-color, #eaeaea);
+}
+
+.skill-content .info-block {
+  border: 2px solid #17a2b8;
+  border-radius: 8px;
+  margin: 1em 0;
+  padding: 1em;
+  background-color: rgba(23, 162, 184, 0.1);
+  position: relative;
+  color: var(--text-color, #eaeaea);
+}
+
+.skill-content .info-block-info {
+  border-color: #17a2b8;
+  background-color: rgba(23, 162, 184, 0.1);
+}
+
+.skill-content .info-block-warning {
+  border-color: #ffc107;
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.skill-content .info-block-example {
+  border-color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.skill-content .info-block-note {
+  border-color: #6f42c1;
+  background-color: rgba(111, 66, 193, 0.1);
+}
+
+.skill-content .info-block-simple {
+  border-color: #6c757d;
+  background-color: rgba(108, 117, 125, 0.1);
+}
+
+.skill-content .info-block-info::before {
+  content: "💡 Это интересно!";
+  color: #17a2b8;
+  font-weight: bold;
+}
+
+.skill-content .info-block-warning::before {
+  content: "⚠️ Предупреждение";
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.skill-content .info-block-example::before {
+  content: "📝 Пример";
+  color: #28a745;
+  font-weight: bold;
+}
+
+.skill-content .info-block-note::before {
+  content: "📌 Заметка";
+  color: #6f42c1;
+  font-weight: bold;
+}
+
+.skill-content .info-block-simple::before {
+  content: none;
+}
+
+.skill-content .info-block::before {
+  position: absolute;
+  top: -12px;
+  left: 15px;
+  background-color: var(--card-bg, #1e1e1e);
+  padding: 2px 8px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.skill-content .info-block p {
+  margin-bottom: 0.5em;
+  color: var(--text-color, #eaeaea);
+}
+
+.skill-content .info-block p:last-child {
+  margin-bottom: 0;
+}
+
+.skill-content .info-block h1,
+.skill-content .info-block h2,
+.skill-content .info-block h3,
+.skill-content .info-block h4,
+.skill-content .info-block h5,
+.skill-content .info-block h6 {
+  color: #17a2b8;
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+  font-weight: 700;
+}
+
+.skill-content .info-block h1:first-child,
+.skill-content .info-block h2:first-child,
+.skill-content .info-block h3:first-child,
+.skill-content .info-block h4:first-child,
+.skill-content .info-block h5:first-child,
+.skill-content .info-block h6:first-child {
+  margin-top: 0;
+}
+
+.skill-content .info-block ul,
+.skill-content .info-block ol {
+  margin: 0.5em 0 0.5em 2em;
+  color: var(--text-color, #eaeaea);
+}
+
+.skill-content .info-block strong {
+  color: #17a2b8;
+  font-weight: 700;
+}
+
+.skill-content pre {
+  background-color: var(--code-bg, #1a1a1a);
+  border: 1px solid var(--input-border, #555);
+  border-radius: 4px;
+  padding: 1em;
+  overflow-x: auto;
+  margin: 1em 0;
+  color: var(--text-color, #eaeaea);
+}
+
+.skill-content code {
+  background-color: var(--code-bg, #1a1a1a);
+  border: 1px solid var(--input-border, #555);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: var(--text-color, #eaeaea);
+}
+
+.skill-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.skill-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1em 0;
+  display: block;
+}
+
+.skill-content a {
+  color: #0ea5e9;
+  text-decoration: underline;
+}
+
+.skill-content a:hover {
+  color: #38bdf8;
 }
 
 .skill-content em {
