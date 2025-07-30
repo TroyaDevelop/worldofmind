@@ -37,7 +37,7 @@ const EditSkill = () => {
         .required('Необходимо указать категорию')
         .max(100, 'Категория не должна превышать 100 символов'),
       description: Yup.string()
-        .max(500, 'Описание не должно превышать 500 символов'),
+        .max(200, 'Описание не должно превышать 200 символов'),
       text: Yup.string(),
       level: Yup.string().required('Выберите степень изучения'),
     }),
@@ -244,7 +244,9 @@ const EditSkill = () => {
 
             {/* Описание */}
             <div className="mb-3">
-              <label htmlFor="description" className="form-label">Краткое описание</label>
+              <label htmlFor="description" className="form-label">
+                Краткое описание
+              </label>
               <textarea
                 id="description"
                 name="description"
@@ -255,10 +257,18 @@ const EditSkill = () => {
                 onBlur={formik.handleBlur}
                 rows={3}
                 disabled={isLoading}
+                maxLength={200}
               />
-              {formik.touched.description && formik.errors.description && (
-                <div className="invalid-feedback">{formik.errors.description}</div>
-              )}
+              <div className="d-flex justify-content-between align-items-start mt-1">
+                <div>
+                  {formik.touched.description && formik.errors.description && (
+                    <div className="text-danger small">{formik.errors.description}</div>
+                  )}
+                </div>
+                <small className={`text-end ${formik.values.description.length > 180 ? 'text-warning' : formik.values.description.length === 200 ? 'text-danger' : 'text-muted'}`}>
+                  {200 - formik.values.description.length} символов осталось
+                </small>
+              </div>
             </div>
 
             {/* Текст с форматированием (TipTap Editor) */}

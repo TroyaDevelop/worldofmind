@@ -75,6 +75,16 @@ const Home = () => {
     return activeCategory === 'all' ? 'Все категории' : activeCategory;
   };
 
+  // Функция для конвертации HEX цвета в RGB
+  const hexToRgb = (hex) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : { r: 52, g: 152, b: 219 }; // Fallback цвет
+  };
+
   if (loading) {
     return (
       <div className="container mt-5">
@@ -200,19 +210,31 @@ const Home = () => {
           {filteredCategories.map(category => (
             <div key={category} className="category-section mb-4">
               <h2 className="category-title">{category}</h2>
-              <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                {groupedSkills[category].map(skill => (
-                  <div key={skill.id} className="col">
-                    <Link to={`/skills/${skill.id}`} className="text-decoration-none">
-                      <div className="card h-100" style={{ borderLeft: `4px solid ${skill.color || '#3498db'}` }}>
-                        <div className="card-body">
-                          <h5 className="card-title">{skill.article}</h5>
-                          <p className="card-text text-muted">{skill.description || 'Без описания'}</p>
+              <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+                {groupedSkills[category].map(skill => {
+                  const skillColor = skill.color || '#3498db';
+                  const rgbColor = hexToRgb(skillColor);
+                  
+                  return (
+                    <div key={skill.id} className="col">
+                      <Link to={`/skills/${skill.id}`} className="text-decoration-none">
+                        <div 
+                          className="card h-100" 
+                          style={{ 
+                            borderLeft: `4px solid ${skillColor}`,
+                            '--skill-color': skillColor,
+                            '--skill-color-rgb': `${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}`
+                          }}
+                        >
+                          <div className="card-body">
+                            <h5 className="card-title">{skill.article}</h5>
+                            <p className="card-text text-muted">{skill.description || 'Без описания'}</p>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
+                      </Link>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}

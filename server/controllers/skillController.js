@@ -52,6 +52,11 @@ exports.create = async (req, res) => {
       return res.status(400).json({ error: 'Необходимо указать название и категорию навыка' });
     }
     
+    // Валидация длины описания
+    if (description && description.length > 200) {
+      return res.status(400).json({ error: 'Описание не должно превышать 200 символов' });
+    }
+    
     // Формирование данных для создания
     const skillData = {
       user_id: userId, // Используем user_id вместо userId
@@ -94,6 +99,11 @@ exports.update = async (req, res) => {
     if (!article || !category) {
       console.log('Ошибка валидации: article =', article, 'category =', category);
       return res.status(400).json({ error: 'Необходимо указать название и категорию навыка' });
+    }
+    
+    // Валидация длины описания
+    if (description && description.length > 200) {
+      return res.status(400).json({ error: 'Описание не должно превышать 200 символов' });
     }
     
     // Получаем текущий навык для проверки наличия изображения

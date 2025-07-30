@@ -111,32 +111,149 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 100px);
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(52, 152, 219, 0.05) 100%);
 }
 
 .auth-card {
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.1),
+    0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 40px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), #2980b9);
+  border-radius: 0 0 4px 4px;
 }
 
 .auth-card h2 {
   text-align: center;
-  margin-bottom: 24px;
-  color: var(--secondary-color);
+  margin-bottom: 32px;
+  color: var(--text-color);
+  font-size: 1.75rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .auth-footer {
-  margin-top: 24px;
+  margin-top: 28px;
+  padding-top: 20px;
   text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-footer p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.auth-footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.auth-footer a:hover {
+  color: #2980b9;
+  text-decoration: underline;
 }
 
 /* Общие стили форм */
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 0.95rem;
+}
+
+/* Улучшенные стили для полей в форме аутентификации */
+.auth-card .form-control {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border: 2px solid var(--input-border);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--input-bg);
+  color: var(--input-text-color);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.auth-card .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 
+    0 0 0 3px rgba(52, 152, 219, 0.15),
+    0 4px 12px rgba(52, 152, 219, 0.1);
+  transform: translateY(-1px);
+}
+
+.auth-card .form-control::placeholder {
+  color: var(--placeholder-color);
+  opacity: 0.7;
+}
+
+.auth-card .form-control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Стили для кнопки в форме аутентификации */
+.auth-card .btn-block {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  margin-top: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-card .btn-primary {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #2980b9 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.auth-card .btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+  background: linear-gradient(135deg, #2980b9 0%, var(--primary-color) 100%);
+}
+
+.auth-card .btn-primary:active {
+  transform: translateY(0);
+}
+
+.auth-card .btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .form-control {
@@ -149,6 +266,7 @@ body {
   transition: border-color 0.3s;
   background-color: var(--input-bg);
   color: var(--input-text-color);
+  resize: vertical;
 }
 
 .form-control:focus {
@@ -161,6 +279,22 @@ body {
   display: block;
   margin-bottom: 6px;
   font-weight: 500;
+}
+
+/* Счетчик символов */
+.character-counter {
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+}
+
+.character-counter.warning {
+  color: var(--warning-color, #ffc107) !important;
+  font-weight: 500;
+}
+
+.character-counter.danger {
+  color: var(--danger-color, #dc3545) !important;
+  font-weight: 600;
 }
 
 .is-invalid {
@@ -291,10 +425,214 @@ body {
 /* Стили для карточек */
 .card {
   background-color: var(--card-bg);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px var(--card-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   margin-bottom: 20px;
   overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid var(--card-border);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Специальные стили для карточек навыков в списке */
+.skills-container .card {
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255,255,255,0.02) 100%);
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  position: relative;
+  height: auto;
+  min-height: 140px;
+}
+
+.skills-container .card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 
+    0 16px 50px rgba(0, 0, 0, 0.2),
+    0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  z-index: 10;
+}
+
+.skills-container .card-body {
+  padding: 20px 24px;
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s ease;
+}
+
+.skills-container .card:hover .card-body {
+  padding: 24px 28px;
+}
+
+.skills-container .card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.skills-container .card:hover .card-title {
+  font-size: 1.15rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: var(--text-color);
+}
+
+/* Переопределяем цвет ссылок внутри карточек навыков */
+.skills-container a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.skills-container a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.skills-container a .card-title {
+  color: var(--text-color);
+  transition: color 0.3s ease;
+}
+
+.skills-container a:hover .card-title {
+  color: var(--text-color);
+}
+
+.skills-container .card-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  margin-bottom: 0;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  max-height: 2.8em; /* Высота для 2 строк */
+}
+
+/* Обрезка текста в обычном состоянии */
+.skills-container .card-text::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50px;
+  height: 1.4em;
+  background: linear-gradient(to right, transparent, var(--card-bg) 80%);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* Полное отображение текста при наведении */
+.skills-container .card:hover .card-text {
+  max-height: none;
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  -webkit-box-orient: unset;
+  animation: expandText 0.4s ease-out;
+}
+
+.skills-container .card:hover .card-text::before {
+  opacity: 0;
+}
+
+/* Анимация разворачивания текста */
+@keyframes expandText {
+  0% {
+    max-height: 2.8em;
+    opacity: 0.8;
+  }
+  100% {
+    max-height: 200px;
+    opacity: 1;
+  }
+}
+
+/* Добавляем эффект свечения при наведении */
+.skills-container .card:hover .card-text {
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+.skills-container a .card-text {
+  color: var(--text-muted);
+}
+
+.skills-container a:hover .card-text {
+  color: var(--text-muted);
+}
+
+/* Цветная полоска слева */
+.skills-container .card {
+  position: relative;
+}
+
+.skills-container .card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--skill-color, #3498db) 0%, rgba(255,255,255,0.1) 100%);
+  transition: all 0.4s ease;
+}
+
+.skills-container .card:hover::before {
+  width: 8px;
+  background: linear-gradient(180deg, var(--skill-color, #3498db) 0%, var(--skill-color, #3498db) 70%, rgba(255,255,255,0.2) 100%);
+  box-shadow: 0 0 15px rgba(var(--skill-color-rgb, 52, 152, 219), 0.4);
+}
+
+/* Индикатор статуса навыка */
+.skills-container .card-body::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--skill-color, #3498db);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  opacity: 0.7;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.skills-container .card:hover .card-body::after {
+  opacity: 1;
+  transform: scale(1.4);
+  box-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 0 40px rgba(var(--skill-color-rgb, 52, 152, 219), 0.3);
+  animation: pulse 2s infinite;
+}
+
+/* Анимация пульсации для индикатора */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.8;
+  }
 }
 
 .card-header {
@@ -388,6 +726,33 @@ body {
   
   .justify-content-end {
     align-items: stretch;
+  }
+  
+  /* Адаптивность для формы аутентификации */
+  .auth-container {
+    padding: 15px;
+    min-height: 100vh;
+  }
+  
+  .auth-card {
+    padding: 30px 25px;
+    max-width: 100%;
+    margin: 0;
+  }
+  
+  .auth-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+  
+  .auth-card .form-control {
+    padding: 12px 14px;
+    font-size: 16px; /* Предотвращает зум на iOS */
+  }
+  
+  .auth-card .btn-block {
+    padding: 12px 16px;
+    font-size: 16px;
   }
   
   .btn {
@@ -502,14 +867,29 @@ body {
 
 /* Стили для навыков */
 .category-section {
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
 .category-title {
-  border-bottom: 2px solid var(--primary-color);
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  color: var(--secondary-color);
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.category-title::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), rgba(52, 152, 219, 0.3));
+  border-radius: 2px;
 }
 
 /* Сетка */
@@ -526,16 +906,28 @@ body {
   padding-left: 15px;
 }
 
-/* Размеры колонок для разных экранов */
+/* Размеры колонок для разных экранов - более компактные */
 .row-cols-1 > * {
   flex: 0 0 100%;
   max-width: 100%;
+}
+
+@media (min-width: 576px) {
+  .row-cols-sm-2 > * {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
 }
 
 @media (min-width: 768px) {
   .row-cols-md-2 > * {
     flex: 0 0 50%;
     max-width: 50%;
+  }
+  
+  .row-cols-md-3 > * {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
   }
 }
 
@@ -544,10 +936,98 @@ body {
     flex: 0 0 33.333333%;
     max-width: 33.333333%;
   }
+  
+  .row-cols-lg-4 > * {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .row-cols-xl-4 > * {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+  
+  .row-cols-xl-5 > * {
+    flex: 0 0 20%;
+    max-width: 20%;
+  }
+}
+
+.g-3 {
+  gap: 1rem;
 }
 
 .g-4 {
   gap: 1.5rem;
+}
+
+/* Компактный режим для карточек навыков */
+@media (min-width: 1400px) {
+  .skills-container .row {
+    gap: 1rem;
+  }
+  
+  .skills-container .card-body {
+    padding: 16px 20px;
+  }
+  
+  .skills-container .card:hover .card-body {
+    padding: 20px 24px;
+  }
+  
+  .skills-container .card-title {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+  
+  .skills-container .card:hover .card-title {
+    font-size: 1.1rem;
+  }
+  
+  .skills-container .card-text {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .skills-container .card:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+  
+  .skills-container .card-text {
+    max-height: 4.2em; /* Больше места для текста на мобильных */
+  }
+  
+  .skills-container .card:hover .card-text {
+    animation: none; /* Отключаем сложную анимацию на мобильных */
+  }
+  
+  .skills-container .card-body::after {
+    width: 10px;
+    height: 10px;
+    top: 12px;
+    right: 12px;
+  }
+  
+  .skills-container .card:hover .card-body::after {
+    transform: scale(1.2);
+  }
+}
+
+/* Темная тема - улучшенные эффекты */
+.dark-mode .skills-container .card {
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255,255,255,0.03) 100%);
+}
+
+.dark-mode .skills-container .card:hover {
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .h-100 {
