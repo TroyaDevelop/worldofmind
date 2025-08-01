@@ -250,3 +250,60 @@
   overflow-x: auto;
   margin: 0.5em 0;
 }
+
+/* Стили для таблиц в содержимом навыка */
+.skill-content table {
+  border-collapse: collapse;
+  margin: 16px 0;
+  width: 100%;
+  border: 1px solid var(--input-border, #555);
+  background-color: transparent;
+  table-layout: fixed;
+}
+
+.skill-content td,
+.skill-content th {
+  border: 1px solid var(--input-border, #555);
+  padding: 8px 12px;
+  text-align: left;
+  background-color: transparent;
+  color: inherit;
+  position: relative;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  min-width: 80px;
+}
+
+.skill-content th {
+  background-color: var(--card-header-bg, #444);
+  font-weight: 600;
+  color: var(--text-color, #fff);
+}
+
+.skill-content td {
+  color: var(--text-color, #eaeaea);
+}
+
+/* Дополнительные стили для лучшего отображения таблиц */
+.skill-content .tableWrapper {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+/* Стили для выделенных ячеек (если используются) */
+.skill-content .selectedCell:after {
+  background: rgba(14, 165, 233, 0.2);
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.skill-content td.selectedCell,
+.skill-content th.selectedCell {
+  background-color: rgba(14, 165, 233, 0.1);
+}

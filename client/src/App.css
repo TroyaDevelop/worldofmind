@@ -25,7 +25,9 @@
   --input-text-color: #333;
   --code-bg: #f5f5f5;
   --button-hover-bg: #e9ecef;
+  --button-bg: #ffffff;
   --placeholder-color: #6c757d;
+  --accent-color: #0ea5e9;
 }
 
 /* Стили для тёмной темы */
@@ -44,7 +46,9 @@
   --blockquote-color: #a0a0a0;
   --code-bg: #1a1a1a;
   --button-hover-bg: #404040;
+  --button-bg: #404040;
   --placeholder-color: #888;
+  --accent-color: #0ea5e9;
   
   /* Переопределение некоторых основных цветов */
   --light-color: #1a1a1a;
@@ -1253,4 +1257,52 @@ body {
 .category-dropdown .dropdown-item.active {
   background-color: rgba(52, 152, 219, 0.2);
   font-weight: 500;
+}
+
+/* Общие стили для таблиц в приложении */
+table {
+  border-collapse: collapse;
+  margin: 16px 0;
+  width: 100%;
+  border: 1px solid var(--input-border, #555);
+  background-color: transparent;
+  table-layout: fixed;
+}
+
+td, th {
+  border: 1px solid var(--input-border, #555);
+  padding: 8px 12px;
+  text-align: left;
+  background-color: transparent;
+  color: inherit;
+  position: relative;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  min-width: 80px;
+}
+
+th {
+  background-color: var(--card-header-bg, #444);
+  font-weight: 600;
+  color: var(--text-color, #fff);
+}
+
+td {
+  color: var(--text-color, #eaeaea);
+}
+
+/* Responsive таблицы */
+.table-responsive {
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 0.9em;
+  }
+  
+  td, th {
+    padding: 6px 8px;
+    min-width: 60px;
+  }
 }
