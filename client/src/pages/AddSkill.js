@@ -11,7 +11,7 @@ const AddSkill = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  // ...existing code...
   const [existingCategories, setExistingCategories] = useState([]);
   
   // Ссылка на экземпляр редактора TipTap
@@ -40,7 +40,7 @@ const AddSkill = () => {
       text: '',
       level: 'in_progress', // новое поле: степень изучения
       color: '#FDFF73', // по умолчанию "в процессе"
-      image: null
+      // ...existing code...
     },
     validationSchema: Yup.object({
       article: Yup.string()
@@ -76,23 +76,7 @@ const AddSkill = () => {
     }
   });
 
-  // Обработчик изменения изображения
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      formik.setFieldValue('image', file);
-      
-      // Создаем предпросмотр изображения
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      formik.setFieldValue('image', null);
-      setImagePreview(null);
-    }
-  };
+  // ...existing code...
   
   // Обработчик изменения текста в редакторе TipTap
   const handleTextChange = (value) => {
@@ -237,34 +221,7 @@ const AddSkill = () => {
               </small>
             </div>
 
-            {/* Изображение */}
-            <div className="mb-3">
-              <label htmlFor="image" className="form-label">Изображение</label>
-              <input
-                type="file"
-                id="image"
-                name="image"
-                className="form-control"
-                onChange={handleImageChange}
-                accept="image/*"
-                disabled={isLoading}
-              />
-              <small className="text-muted">
-                Загрузите изображение (JPEG, PNG, GIF, WEBP)
-              </small>
-
-              {/* Предпросмотр изображения */}
-              {imagePreview && (
-                <div className="mt-3">
-                  <img 
-                    src={imagePreview} 
-                    alt="Предпросмотр" 
-                    className="img-thumbnail" 
-                    style={{ maxHeight: '200px' }} 
-                  />
-                </div>
-              )}
-            </div>
+            {/* Поле изображения удалено по запросу пользователя */}
 
             {/* Кнопки действий */}
             <div className="d-flex justify-content-end mt-4">

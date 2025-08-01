@@ -108,6 +108,473 @@
   outline: none;
 }
 
+/* Стили для таблиц */
+.tiptap-editor-content table {
+  border-collapse: collapse;
+  margin: 16px 0;
+  width: 100%;
+  border: 1px solid #555;
+  background-color: transparent;
+  table-layout: fixed;
+}
+
+/* Оптимизация для плавного изменения размеров */
+.tiptap-editor-content table.ProseMirror-resize-cursor {
+  cursor: col-resize;
+}
+
+.tiptap-editor-content table.ProseMirror-resize-cursor * {
+  cursor: col-resize !important;
+}
+
+.tiptap-editor-content td,
+.tiptap-editor-content th {
+  border: 1px solid #555;
+  padding: 8px 12px;
+  text-align: left;
+  background-color: transparent;
+  color: inherit;
+  position: relative;
+}
+
+.tiptap-editor-content th {
+  background-color: #444;
+  font-weight: 600;
+  color: #eaeaea;
+}
+
+body[data-theme="light"] .tiptap-editor-content th {
+  background-color: #f3f3f3 !important;
+  color: #222 !important;
+}
+
+body[data-theme="dark"] .tiptap-editor-content th {
+  background-color: #444 !important;
+  color: #eaeaea !important;
+}
+
+body[data-theme="light"] .tiptap-editor-content th {
+  background-color: #f3f3f3;
+  color: #222;
+}
+
+body[data-theme="dark"] .tiptap-editor-content th {
+  background-color: #444;
+  color: #eaeaea;
+}
+
+.tiptap-editor-content .selectedCell:after {
+  background: rgba(14, 165, 233, 0.2);
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Дополнительные стили для выделения ячеек */
+.tiptap-editor-content td.selectedCell,
+.tiptap-editor-content th.selectedCell {
+  background-color: rgba(14, 165, 233, 0.1);
+}
+
+.tiptap-editor-content .column-resize-handle {
+  background-color: #0ea5e9;
+  bottom: -2px;
+  position: absolute;
+  right: -4px;
+  top: 0;
+  width: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  border-radius: 4px;
+}
+
+/* Показываем ручку изменения размера при наведении на ячейку */
+.tiptap-editor-content th:hover .column-resize-handle,
+.tiptap-editor-content td:hover .column-resize-handle,
+.tiptap-editor-content .column-resize-handle:hover {
+  opacity: 0.8;
+}
+
+/* Активная ручка изменения размера */
+.tiptap-editor-content .column-resize-handle.dragging {
+  opacity: 1;
+  background-color: #0284c7;
+}
+
+/* Стили для активного изменения размера */
+.tiptap-editor-content .resize-cursor {
+  cursor: col-resize;
+}
+
+/* Отключаем анимации во время изменения размеров для производительности */
+.tiptap-editor-content table.resizing {
+  pointer-events: none;
+}
+
+.tiptap-editor-content table.resizing * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Улучшенные стили для плавного изменения размера */
+.tiptap-editor-content table {
+  table-layout: fixed;
+}
+
+.tiptap-editor-content td,
+.tiptap-editor-content th {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  min-width: 80px;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+/* Простые стили для управления таблицами */
+.table-controls {
+  position: relative;
+  display: inline-block;
+}
+
+.table-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 8px;
+  z-index: 1000;
+  min-width: 180px;
+}
+
+.table-controls-group {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.table-controls-group:last-child {
+  margin-bottom: 0;
+  padding-top: 6px;
+  border-top: 1px solid #555;
+  justify-content: center;
+}
+
+.table-controls-label {
+  font-size: 12px;
+  color: #ccc;
+  min-width: 40px;
+}
+
+.table-controls-group button {
+  background: #404040;
+  border: 1px solid #555;
+  color: #ccc;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.table-controls-group button:hover:not(:disabled) {
+  background-color: #505050;
+}
+
+.table-controls-group button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.table-controls-group button.delete-btn,
+.table-controls-group button.delete-table-btn {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.table-controls-group button.delete-btn:hover:not(:disabled),
+.table-controls-group button.delete-table-btn:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+/* Стили для меню инструментов */
+.tools-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.tools-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 6px;
+  z-index: 1000;
+  min-width: 180px;
+}
+
+.tools-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+
+.tools-menu-item:hover {
+  background-color: #404040;
+}
+
+.tool-icon {
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.tools-separator {
+  height: 1px;
+  background-color: #555;
+  margin: 4px 0;
+}
+
+/* Плавающая панель управления таблицей */
+.floating-table-controls {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--card-bg, #1e1e1e);
+  border: 1px solid var(--accent-color, #0ea5e9);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  min-width: 320px;
+  margin-top: 8px;
+  animation: floatIn 0.3s ease-out;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.floating-controls-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--accent-color, #0ea5e9), #0284c7);
+  color: white;
+  border-radius: 11px 11px 0 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.floating-controls-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.floating-controls-close {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  font-size: 12px;
+}
+
+.floating-controls-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.floating-controls-body {
+  padding: 16px;
+}
+
+.floating-control-section {
+  margin-bottom: 16px;
+}
+
+.floating-control-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-color, #0ea5e9);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  background: var(--button-bg, #404040);
+  border: 1px solid var(--input-border, #555);
+  color: var(--input-text-color, #ccc);
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 80px;
+}
+
+.control-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.control-btn.add-btn {
+  background: var(--accent-color, #0ea5e9);
+  border-color: var(--accent-color, #0ea5e9);
+  color: white;
+}
+
+.control-btn.add-btn:hover:not(:disabled) {
+  background-color: #0284c7;
+  border-color: #0284c7;
+}
+
+.control-btn.delete-btn {
+  background-color: #dc3545;
+  border-color: #c82333;
+  color: white;
+}
+
+.control-btn.delete-btn:hover:not(:disabled) {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.danger-section {
+  border-top: 1px solid var(--input-border, #555);
+  padding-top: 16px;
+  margin-top: 16px;
+}
+
+.control-btn.danger-btn {
+  background-color: #dc3545;
+  border-color: #c82333;
+  color: white;
+  width: 100%;
+  font-weight: 600;
+  padding: 10px 16px;
+  font-size: 12px;
+}
+
+.control-btn.danger-btn:hover:not(:disabled) {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+/* Простое контекстное меню */
+.context-menu {
+  background-color: #2d2d2d;
+  border: 1px solid #555;
+  border-radius: 6px;
+  z-index: 10000;
+  width: 200px;
+  max-height: 350px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .context-menu {
+    min-width: 160px;
+    max-width: calc(100vw - 20px);
+    font-size: 14px;
+  }
+}
+
+.context-menu-section {
+  padding: 4px 0;
+}
+
+.context-menu-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0ea5e9;
+  margin: 0 8px 4px 8px;
+  text-transform: uppercase;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+
+.context-menu-item:hover:not(:disabled) {
+  background-color: #404040;
+}
+
+.context-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.context-menu-item.danger {
+  color: #dc3545;
+}
+
+.context-menu-item.danger:hover:not(:disabled) {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.context-menu-separator {
+  height: 1px;
+  background-color: #555;
+  margin: 2px 0;
+}
+
 /* Стили для контента редактора */
 .tiptap-editor-content h1,
 .tiptap-editor-content h2,
