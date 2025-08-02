@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllSkills, getCategories } from '../services/skillService';
+import { useSearch } from '../context/SearchContext';
 import { FaPlus, FaSearch, FaBrain, FaList, FaFilter } from 'react-icons/fa';
 import NeuronSkillsMap from '../components/NeuronSkillsMap';
 
 const Home = () => {
+  const { searchQuery, isSearchActive } = useSearch();
   const [skills, setSkills] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +26,8 @@ const Home = () => {
         setSkills(skillsData || []);
         setCategories(categoriesData || []);
       } catch (err) {
-        setError(err.message || 'Не удалось загрузить данные');
         console.error('Ошибка при загрузке данных:', err);
+        setError(err.message || 'Не удалось загрузить данные');
       } finally {
         setLoading(false);
       }
@@ -46,13 +48,30 @@ const Home = () => {
     return () => document.removeEventListener('click', closeDropdown);
   }, [isDropdownOpen]);
 
-  // Функция для отображения навыков выбранной категории или всех навыков
+  // Функция для отображения навыков выбранной категории или всех навыков с учетом поиска
   const getFilteredSkills = () => {
-    if (activeCategory === 'all') {
-      return skills;
+    let filteredSkills = skills;
+
+    // Фильтрация по категории
+    if (activeCategory !== 'all') {
+      filteredSkills = filteredSkills.filter(skill => skill.category === activeCategory);
     }
-    
-    return skills.filter(skill => skill.category === activeCategory);
+
+    // Поиск по тексту (если активен)
+    if (isSearchActive && searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      
+      filteredSkills = filteredSkills.filter(skill => {
+        const matchesArticle = skill.article && skill.article.toLowerCase().includes(query);
+        const matchesCategory = skill.category && skill.category.toLowerCase().includes(query);
+        const matchesDescription = skill.description && skill.description.toLowerCase().includes(query);
+        const matchesText = skill.text && skill.text.toLowerCase().includes(query); // Используем text вместо content
+        
+        return matchesArticle || matchesCategory || matchesDescription || matchesText;
+      });
+    }
+
+    return filteredSkills;
   };
 
   // Группирование навыков по категориям для отображения
@@ -116,12 +135,18 @@ const Home = () => {
   }
 
   const groupedSkills = groupSkillsByCategory();
-  const filteredCategories = Object.keys(groupedSkills).sort();
 
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Мои навыки</h1>
+        <div>
+          <h1>Мои навыки</h1>
+          {isSearchActive && (
+            <div className="text-muted">
+              <small>Поиск: "{searchQuery}" ({getFilteredSkills().length} результатов)</small>
+            </div>
+          )}
+        </div>
         <Link to="/add-skill" className="btn btn-primary">
           <FaPlus className="me-2" /> Добавить навык
         </Link>
@@ -186,7 +211,7 @@ const Home = () => {
       </div>
 
       {/* Если навыков нет */}
-      {skills.length === 0 && (
+      {skills.length === 0 && !isSearchActive && (
         <div className="text-center py-5">
           <div className="mb-4">
             <FaSearch size={48} className="text-muted" />
@@ -199,15 +224,26 @@ const Home = () => {
         </div>
       )}
 
+      {/* Если ничего не найдено по поиску */}
+      {skills.length > 0 && isSearchActive && getFilteredSkills().length === 0 && (
+        <div className="text-center py-5">
+          <div className="mb-4">
+            <FaSearch size={48} className="text-muted" />
+          </div>
+          <h3>Ничего не найдено</h3>
+          <p className="text-muted">По запросу "{searchQuery}" ничего не найдено. Попробуйте изменить поисковый запрос.</p>
+        </div>
+      )}
+
       {/* Нейронная визуализация навыков */}
       {skills.length > 0 && viewMode === 'neuron' && (
-        <NeuronSkillsMap skills={skills} activeCategory={activeCategory} />
+        <NeuronSkillsMap skills={getFilteredSkills()} activeCategory={activeCategory} />
       )}
 
       {/* Отображение навыков по категориям в формате списка */}
-      {skills.length > 0 && viewMode === 'list' && filteredCategories.length > 0 && (
+      {skills.length > 0 && viewMode === 'list' && getFilteredSkills().length > 0 && (
         <div className="skills-container">
-          {filteredCategories.map(category => (
+          {Object.keys(groupedSkills).sort().map(category => (
             <div key={category} className="category-section mb-4">
               <h2 className="category-title">{category}</h2>
               <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
@@ -242,9 +278,9 @@ const Home = () => {
       )}
       
       {/* Если навыки есть, но не соответствуют выбранной категории */}
-      {skills.length > 0 && filteredCategories.length === 0 && (
+      {skills.length > 0 && !isSearchActive && getFilteredSkills().length === 0 && activeCategory !== 'all' && (
         <div className="alert alert-info">
-          В выбранной категории навыков не найдено.
+          В выбранной категории "{activeCategory}" навыков не найдено.
         </div>
       )}
     </div>

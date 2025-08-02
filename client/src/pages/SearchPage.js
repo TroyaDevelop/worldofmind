@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { searchSkills } from '../services/skillService';
 import { FaArrowLeft, FaSearch } from 'react-icons/fa';
@@ -11,20 +11,68 @@ const SearchPage = () => {
   // Состояния для хранения данных
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   // При монтировании компонента и изменении параметров URL
   useEffect(() => {
     const queryParam = searchParams.get('query');
     if (queryParam) {
       setQuery(queryParam);
+      setSearchQuery(queryParam);
       performSearch(queryParam);
     } else {
       setLoading(false);
     }
   }, [searchParams]);
+
+  // Функция для выполнения поиска с debounce
+  const debouncedSearch = useCallback((searchText) => {
+    // Очищаем предыдущий таймер
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    // Если поиск пустой, очищаем результаты
+    if (!searchText.trim()) {
+      setResults([]);
+      setQuery('');
+      setLoading(false);
+      setError(null);
+      // Обновляем URL без параметра query
+      navigate('/search', { replace: true });
+      return;
+    }
+
+    // Устанавливаем новый таймер
+    const newTimer = setTimeout(() => {
+      setQuery(searchText);
+      performSearch(searchText);
+      // Обновляем URL с новым запросом
+      navigate(`/search?query=${encodeURIComponent(searchText)}`, { replace: true });
+    }, 300); // 300ms задержка
+
+    setDebounceTimer(newTimer);
+  }, [debounceTimer, navigate]);
+
+  // Обработчик изменения поля ввода
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    setLoading(true);
+    debouncedSearch(value);
+  };
+
+  // Очистка таймера при размонтировании компонента
+  useEffect(() => {
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
+  }, [debounceTimer]);
 
   // Функция для выполнения поиска
   const performSearch = async (searchText) => {
@@ -42,14 +90,6 @@ const SearchPage = () => {
     }
   };
 
-  // Обработчик отправки формы поиска
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-
   return (
     <div className="container mt-4">
       <div className="mb-4">
@@ -61,38 +101,39 @@ const SearchPage = () => {
       <div className="card mb-4">
         <div className="card-body">
           <h1 className="card-title h5 mb-4">Поиск навыков</h1>
-          <form onSubmit={handleSearch} className="mb-4">
+          <div className="mb-4">
             <div className="input-group">
+              <span className="input-group-text">
+                <FaSearch />
+              </span>
               <input
                 type="text"
                 className="form-control"
-                placeholder="Введите запрос для поиска..."
+                placeholder="Начните вводить для поиска навыков..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                aria-label="Поиск"
+                onChange={handleInputChange}
+                aria-label="Поиск в реальном времени"
               />
-              <button className="btn btn-primary" type="submit">
-                <FaSearch className="me-2" /> Искать
-              </button>
             </div>
-          </form>
+            <small className="form-text text-muted mt-2">
+              Поиск происходит автоматически по мере ввода текста
+            </small>
+          </div>
 
           {query && (
-            <p className="text-muted">
-              Результаты поиска для: <strong>{query}</strong>
-            </p>
+            <div className="d-flex align-items-center text-muted mb-2">
+              <span>Результаты поиска для: <strong>{query}</strong></span>
+              {loading && (
+                <div className="spinner-border spinner-border-sm ms-2" role="status">
+                  <span className="visually-hidden">Поиск...</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
 
-      {loading ? (
-        <div className="text-center my-5">
-          <div className="spinner-border" role="status">
-            <span className="visually-hidden">Загрузка...</span>
-          </div>
-          <p className="mt-2">Поиск навыков...</p>
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="alert alert-danger">
           <p>{error}</p>
           <button 
@@ -124,7 +165,7 @@ const SearchPage = () => {
                 </div>
               ))}
             </div>
-          ) : query ? (
+          ) : query && !loading ? (
             <div className="text-center my-5">
               <div className="mb-4">
                 <FaSearch size={48} className="text-muted" />
@@ -132,7 +173,7 @@ const SearchPage = () => {
               <h3>Ничего не найдено</h3>
               <p className="text-muted">Попробуйте изменить поисковый запрос</p>
             </div>
-          ) : (
+          ) : !query && !loading ? (
             <div className="text-center my-5">
               <div className="mb-4">
                 <FaSearch size={48} className="text-muted" />
@@ -140,7 +181,7 @@ const SearchPage = () => {
               <h3>Введите запрос для поиска</h3>
               <p className="text-muted">Поиск работает по названию, категории, описанию и содержанию навыков</p>
             </div>
-          )}
+          ) : null}
         </>
       )}
     </div>

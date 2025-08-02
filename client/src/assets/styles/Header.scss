@@ -64,10 +64,41 @@
       color: var(--header-text);
       cursor: pointer;
       transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       
-      &:hover {
+      &:hover:not(:disabled) {
         color: #3498db;
       }
+      
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+      
+      .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.125rem;
+      }
+      
+      .spinner-border {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        vertical-align: -0.125em;
+        border: 0.125em solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spinner-border 0.75s linear infinite;
+      }
+    }
+  }
+  
+  @keyframes spinner-border {
+    to {
+      transform: rotate(360deg);
     }
   }
   

@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ThemeProvider from './context/ThemeContext';
+import { SearchProvider } from './context/SearchContext';
 
 // Компоненты
 import Header from './components/Header';
@@ -47,13 +48,14 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <Header />
-          <main className="app-main">
-            <Routes>
-              {/* Публичные маршруты */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+        <SearchProvider>
+          <Router>
+            <Header />
+            <main className="app-main">
+              <Routes>
+                {/* Публичные маршруты */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
               
               {/* Защищенные маршруты */}
               <Route 
@@ -102,8 +104,9 @@ function App() {
             </Routes>
           </main>
         </Router>
-      </AuthProvider>
-    </ThemeProvider>
+      </SearchProvider>
+    </AuthProvider>
+  </ThemeProvider>
   );
 }
 

@@ -58,9 +58,36 @@
   color: var(--header-text);
   cursor: pointer;
   transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.header .search-form button:hover {
+.header .search-form button:hover:not(:disabled) {
   color: #3498db;
+}
+.header .search-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.header .search-form button .spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.125rem;
+}
+.header .search-form button .spinner-border {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: -0.125em;
+  border: 0.125em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+}
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .header .theme-toggle {
   background: transparent;

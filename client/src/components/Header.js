@@ -1,27 +1,108 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useSearch } from '../context/SearchContext';
 import { FaSearch, FaSignOutAlt, FaUser, FaMoon, FaSun } from 'react-icons/fa';
 import '../assets/styles/Header.scss';
 
 const Header = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { darkMode, toggleTheme } = useTheme();
+  const { updateSearch, clearSearch } = useSearch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [debounceTimer, setDebounceTimer] = useState(null);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  // Функция для выполнения поиска с debounce
+  const debouncedSearch = useCallback((searchText) => {
+    // Очищаем предыдущий таймер
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    // Если поиск пустой, очищаем поиск в контексте
+    if (!searchText.trim()) {
+      setIsSearching(false);
+      clearSearch();
+      return;
+    }
+
+    // Устанавливаем новый таймер
+    const newTimer = setTimeout(() => {
+      setIsSearching(false);
+      
+      // Если мы на главной странице, обновляем поиск в контексте
+      if (location.pathname === '/') {
+        updateSearch(searchText);
+      } else {
+        // Если не на главной, переходим на страницу поиска
+        navigate(`/search?query=${encodeURIComponent(searchText)}`);
+      }
+    }, 300); // 300ms задержка
+
+    setDebounceTimer(newTimer);
+  }, [debounceTimer, navigate, location.pathname, updateSearch, clearSearch]);
+
+  // Обработчик изменения поля ввода
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    if (value.trim()) {
+      setIsSearching(true);
+      debouncedSearch(value);
+    } else {
+      setIsSearching(false);
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    }
+  };
+
+  // Обработчик отправки формы (для Enter)
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+      // Очищаем таймер и сразу выполняем поиск
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+      setIsSearching(false);
+      
+      // Если мы на главной странице, обновляем поиск в контексте
+      if (location.pathname === '/') {
+        updateSearch(searchQuery);
+      } else {
+        // Если не на главной, переходим на страницу поиска
+        navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+      }
     }
   };
+
+  // Очистка поиска при смене страницы
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      clearSearch();
+      setSearchQuery('');
+    }
+  }, [location.pathname, clearSearch]);
+
+  // Очистка таймера при размонтировании компонента
+  useEffect(() => {
+    return () => {
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+    };
+  }, [debounceTimer]);
 
   return (
     <header className="header">
@@ -34,12 +115,18 @@ const Header = () => {
               <form className="search-form" onSubmit={handleSearch}>
                 <input
                   type="text"
-                  placeholder="Поиск навыков..."
+                  placeholder="Начните вводить для поиска..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleInputChange}
                 />
-                <button type="submit">
-                  <FaSearch />
+                <button type="submit" disabled={isSearching}>
+                  {isSearching ? (
+                    <div className="spinner-border spinner-border-sm" role="status">
+                      <span className="visually-hidden">Поиск...</span>
+                    </div>
+                  ) : (
+                    <FaSearch />
+                  )}
                 </button>
               </form>
 
