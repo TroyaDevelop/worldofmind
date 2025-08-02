@@ -12,7 +12,6 @@ import Home from './pages/Home';
 import AddSkill from './pages/AddSkill';
 import EditSkill from './pages/EditSkill';
 import SkillDetails from './pages/SkillDetails';
-import SearchPage from './pages/SearchPage';
 
 // Стили
 import './App.css';
@@ -87,14 +86,6 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <EditSkill />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/search" 
-                element={
-                  <ProtectedRoute>
-                    <SearchPage />
                   </ProtectedRoute>
                 } 
               />

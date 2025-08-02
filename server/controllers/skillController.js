@@ -262,28 +262,6 @@ exports.getSkillById = async (req, res) => {
   }
 };
 
-// Поиск навыков
-exports.searchSkills = async (req, res) => {
-  try {
-    const query = req.query.q;
-    
-    if (!query || query.trim() === '') {
-      return res.status(400).json({ error: 'Параметр поиска не указан' });
-    }
-    
-    const skills = await Skill.search(query);
-    
-    if (skills.error) {
-      return res.status(500).json({ error: skills.error });
-    }
-    
-    res.status(200).json({ skills: skills });
-  } catch (error) {
-    console.error('Ошибка поиска навыков:', error);
-    res.status(500).json({ error: 'Ошибка при поиске навыков' });
-  }
-};
-
 // Создать новый навык
 exports.createSkill = async (req, res) => {
   try {

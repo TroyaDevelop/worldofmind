@@ -79,36 +79,6 @@ class Skill {
       return { error: 'Ошибка при получении навыка из базы данных' };
     }
   }
-
-  // Поиск навыков по ключевому слову
-  static async search(query, userId = null) {
-    try {
-      const searchParam = `%${query}%`;
-      let sqlQuery = `
-        SELECT s.*, u.username 
-        FROM skills s 
-        JOIN users u ON s.user_id = u.id 
-        WHERE (s.article LIKE ? OR s.description LIKE ? OR s.text LIKE ? OR s.category LIKE ?)
-      `;
-      
-      let params = [searchParam, searchParam, searchParam, searchParam];
-      
-      // Если передан userId, добавляем условие проверки владельца
-      if (userId) {
-        sqlQuery += ' AND s.user_id = ?';
-        params.push(userId);
-      }
-      
-      sqlQuery += ' ORDER BY s.created_at DESC';
-      
-      const [rows] = await db.query(sqlQuery, params);
-      
-      return rows;
-    } catch (error) {
-      console.error('Ошибка поиска навыков:', error);
-      return { error: 'Ошибка при поиске навыков в базе данных' };
-    }
-  }
   
   // Получить все категории (с фильтром по пользователю, если указан userId)
   static async getCategories(userId = null) {

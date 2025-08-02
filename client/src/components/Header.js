@@ -39,12 +39,10 @@ const Header = () => {
     const newTimer = setTimeout(() => {
       setIsSearching(false);
       
-      // Если мы на главной странице, обновляем поиск в контексте
-      if (location.pathname === '/') {
-        updateSearch(searchText);
-      } else {
-        // Если не на главной, переходим на страницу поиска
-        navigate(`/search?query=${encodeURIComponent(searchText)}`);
+      // Всегда обновляем поиск в контексте и переходим на главную
+      updateSearch(searchText);
+      if (location.pathname !== '/') {
+        navigate('/');
       }
     }, 300); // 300ms задержка
 
@@ -77,12 +75,10 @@ const Header = () => {
       }
       setIsSearching(false);
       
-      // Если мы на главной странице, обновляем поиск в контексте
-      if (location.pathname === '/') {
-        updateSearch(searchQuery);
-      } else {
-        // Если не на главной, переходим на страницу поиска
-        navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+      // Всегда обновляем поиск в контексте и переходим на главную
+      updateSearch(searchQuery);
+      if (location.pathname !== '/') {
+        navigate('/');
       }
     }
   };
@@ -136,9 +132,6 @@ const Header = () => {
                     <button onClick={toggleTheme} className="theme-toggle">
                       {darkMode ? <FaSun /> : <FaMoon />}
                     </button>
-                  </li>
-                  <li>
-                    <Link to="/add-skill" className="add-button">+ Добавить навык</Link>
                   </li>
                   <li className="user-dropdown">
                     <span className="username">

@@ -8,7 +8,6 @@ const uploadMiddleware = require('../middleware/upload');
 router.get('/public', skillController.getAllSkills);
 router.get('/public/:id', skillController.getSkillById);
 router.get('/categories/public', skillController.getCategories);
-router.get('/search/public', skillController.searchSkills); // Добавляем публичный поиск
 
 // Защищенные маршруты (требуется аутентификация)
 router.get('/', authMiddleware, skillController.getAll);
