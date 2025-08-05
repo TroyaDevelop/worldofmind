@@ -1,12 +1,12 @@
 import React, { useImperativeHandle, forwardRef, useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import InfoBlock from './InfoBlock';
+import { ResizableImage } from './ResizableImage';
 import './TipTapEditor.css';
 
 const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введите текст...' }, ref) => {
@@ -30,7 +30,6 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
     if (finalX < 0) {
       finalX = 10;
     }
-    // Проверяем, чтобы меню не выходило за правый край
     if (finalX + menuWidth > window.innerWidth) {
       finalX = window.innerWidth - menuWidth - 10;
     }
@@ -98,9 +97,9 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
           levels: [1, 2, 3, 4, 5, 6],
         },
       }),
-      Image.configure({
+      ResizableImage.configure({
         HTMLAttributes: {
-          class: 'tiptap-image',
+          class: 'tiptap-resizable-image',
         },
       }),
       Link.configure({
@@ -177,7 +176,13 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
     getEditor: () => editor,
     insertImage: (url) => {
       if (editor) {
-        editor.chain().focus().setImage({ src: url }).run();
+        // Убеждаемся, что изображение вставляется в текущую позицию курсора
+        const currentSelection = editor.state.selection;
+        editor.chain()
+          .focus()
+          .setTextSelection(currentSelection.anchor)
+          .setResizableImage({ src: url })
+          .run();
       }
     },
     insertText: (text, style = null) => {
@@ -327,6 +332,10 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
                 type="button"
                 className="tools-menu-item"
                 onClick={() => {
+                  // Сохраняем текущую позицию курсора перед открытием диалога
+                  const currentSelection = editor.state.selection;
+                  const currentPosition = currentSelection.anchor;
+                  
                   const input = document.createElement('input');
                   input.setAttribute('type', 'file');
                   input.setAttribute('accept', 'image/*');
@@ -337,7 +346,12 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
                       const reader = new FileReader();
                       reader.onload = (e) => {
                         const url = e.target.result;
-                        editor.chain().focus().setImage({ src: url }).run();
+                        // Восстанавливаем позицию курсора и вставляем изображение
+                        editor.chain()
+                          .focus()
+                          .setTextSelection(currentPosition)
+                          .setResizableImage({ src: url })
+                          .run();
                       };
                       reader.readAsDataURL(file);
                     }

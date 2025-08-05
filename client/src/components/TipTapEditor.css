@@ -748,12 +748,52 @@
   padding: 0;
 }
 
-.tiptap-image {
+/* Стили для изменяемых изображений */
+.resizable-image-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 1em 0;
+}
+
+.resizable-image-container img {
   max-width: 100%;
   height: auto;
   border-radius: 4px;
-  margin: 1em 0;
   display: block;
+  cursor: pointer;
+}
+
+.resizable-image-container:hover .resize-handle {
+  opacity: 1 !important;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background-color: var(--accent-color, #0ea5e9);
+  cursor: nw-resize;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  border: 1px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.resize-handle:hover {
+  background-color: #0284c7;
+  transform: scale(1.1);
+}
+
+.resizable-image-container.resizing .resize-handle {
+  opacity: 1;
+}
+
+.tiptap-resizable-image {
+  margin: 1em 0;
 }
 
 .tiptap-link {

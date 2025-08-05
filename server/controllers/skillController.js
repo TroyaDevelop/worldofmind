@@ -92,8 +92,10 @@ exports.update = async (req, res) => {
     
     // Добавляем вывод отладочной информации
     console.log('Данные запроса на обновление:', req.body);
+    console.log('ID навыка:', skillId);
+    console.log('ID пользователя:', userId);
     
-    const { article, category, description, text, color } = req.body;
+    const { article, category, description, text, color, image } = req.body;
     
     // Валидация данных
     if (!article || !category) {
@@ -107,10 +109,13 @@ exports.update = async (req, res) => {
     }
     
     // Получаем текущий навык для проверки наличия изображения
+    console.log('Получаем существующий навык...');
     const existingSkill = await Skill.getById(skillId, userId);
     if (existingSkill.error) {
+      console.log('Ошибка получения существующего навыка:', existingSkill.error);
       return res.status(404).json({ error: existingSkill.error });
     }
+    console.log('Существующий навык:', existingSkill);
     
     // Формирование данных для обновления
     const skillData = {
@@ -119,8 +124,8 @@ exports.update = async (req, res) => {
       description: description ? description.trim() : '',
       text: text || '',
       color: color || '#3498db',
-      // Сохраняем существующее изображение
-      image: existingSkill.image
+      // Используем переданное изображение или сохраняем существующее
+      image: image || existingSkill.image
     };
     
     console.log('Данные для обновления:', skillData);
@@ -129,13 +134,16 @@ exports.update = async (req, res) => {
     
     // Проверка на ошибки
     if (updatedSkill.error) {
+      console.log('Ошибка при обновлении в модели:', updatedSkill.error);
       return res.status(400).json({ error: updatedSkill.error });
     }
     
+    console.log('Навык успешно обновлен:', updatedSkill);
     res.status(200).json(updatedSkill);
     console.timeEnd('server_updateSkill');
   } catch (error) {
     console.error('Ошибка при обновлении навыка:', error);
+    console.error('Stack trace:', error.stack);
     res.status(500).json({ error: 'Ошибка сервера при обновлении навыка' });
     console.timeEnd('server_updateSkill');
   }
@@ -298,59 +306,6 @@ exports.createSkill = async (req, res) => {
   } catch (error) {
     console.error('Ошибка создания навыка:', error);
     res.status(500).json({ error: 'Ошибка при создании навыка' });
-  }
-};
-
-// Обновить навык
-exports.updateSkill = async (req, res) => {
-  try {
-    const skillId = req.params.id;
-    const { title, description, difficulty, time_required, prerequisites } = req.body;
-    
-    // Проверка обязательных полей
-    if (!title || !description) {
-      return res.status(400).json({ error: 'Название и описание обязательны для заполнения' });
-    }
-    
-    // Получаем текущие данные навыка для проверки на владельца и существующее изображение
-    const existingSkill = await Skill.getById(skillId);
-    if (existingSkill.error) {
-      return res.status(404).json({ error: existingSkill.error });
-    }
-    
-    // Получение пути к загруженному изображению, если есть
-    let image_url = existingSkill.image_url;
-    if (req.file) {
-      // Если было загружено новое изображение и у навыка было старое, удаляем его
-      if (existingSkill.image_url) {
-        const oldImagePath = path.join(__dirname, '..', existingSkill.image_url);
-        if (fs.existsSync(oldImagePath)) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-      
-      image_url = `/uploads/${req.file.filename}`;
-    }
-    
-    const skillData = {
-      title,
-      description,
-      image_url,
-      difficulty: difficulty || 'Средний',
-      time_required: time_required || 'Не указано',
-      prerequisites: prerequisites || 'Нет'
-    };
-    
-    const updatedSkill = await Skill.update(skillId, skillData, req.user.id);
-    
-    if (updatedSkill.error) {
-      return res.status(400).json({ error: updatedSkill.error });
-    }
-    
-    res.status(200).json(updatedSkill);
-  } catch (error) {
-    console.error('Ошибка обновления навыка:', error);
-    res.status(500).json({ error: 'Ошибка при обновлении навыка' });
   }
 };
 
