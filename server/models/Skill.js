@@ -116,11 +116,11 @@ class Skill {
       // Используем правильные имена полей из таблицы skills
       const { article, category, description, text, color, image, user_id } = skillData;
       
-      // В запросе указываем оба поля: user_id и userId
+      // В запросе указываем только поля, которые есть в таблице
       const [result] = await db.query(`
-        INSERT INTO skills (article, category, description, text, color, image, user_id, userId) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `, [article, category, description, text, color, image, user_id, user_id]); // Используем одинаковое значение для обоих полей
+        INSERT INTO skills (article, category, description, text, color, image, user_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `, [article, category, description, text, color, image, user_id]);
       
       if (result.affectedRows === 0) {
         return { error: 'Ошибка создания навыка' };
