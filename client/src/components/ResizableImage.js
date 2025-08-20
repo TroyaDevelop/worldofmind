@@ -90,7 +90,7 @@ export const ResizableImage = Node.create({
       resizeHandle.style.transition = 'opacity 0.2s';
 
       let isResizing = false;
-      let startX, startY, startWidth, startHeight;
+      let startX, startWidth, startHeight;
 
       // Показываем handle при наведении
       container.addEventListener('mouseenter', () => {

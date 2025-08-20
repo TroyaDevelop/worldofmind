@@ -176,7 +176,6 @@ export const updateSkill = async (id, skillData) => {
     
     const response = await api.put(`/skills/${id}`, data, config);
     return response.data;
-    return response.data;
   } catch (error) {
     if (error.response) {
       throw new Error(error.response.data.error || 'Не удалось обновить навык');

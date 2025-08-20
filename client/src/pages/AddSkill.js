@@ -5,7 +5,6 @@ import * as Yup from 'yup';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
 import { createSkill, getCategories } from '../services/skillService';
 import TipTapEditor from '../components/TipTapEditor';
-import api from '../services/api';
 
 const AddSkill = () => {
   const navigate = useNavigate();

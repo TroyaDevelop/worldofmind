@@ -11,7 +11,6 @@ import './TipTapEditor.css';
 
 const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введите текст...' }, ref) => {
   const [showBlockMenu, setShowBlockMenu] = useState(false);
-  const [showTableMenu, setShowTableMenu] = useState(false);
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, type: null });
   const dropdownRef = useRef(null);
