@@ -14,7 +14,6 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
   const [showToolsMenu, setShowToolsMenu] = useState(false);
   const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, type: null });
   const dropdownRef = useRef(null);
-  const tableDropdownRef = useRef(null);
   const toolsDropdownRef = useRef(null);
   const contextMenuRef = useRef(null);
   
@@ -54,9 +53,9 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowBlockMenu(false);
       }
-      if (tableDropdownRef.current && !tableDropdownRef.current.contains(event.target)) {
-        setShowTableMenu(false);
-      }
+  // if (tableDropdownRef.current && !tableDropdownRef.current.contains(event.target)) {
+  //   setShowTableMenu(false);
+  // }
       if (toolsDropdownRef.current && !toolsDropdownRef.current.contains(event.target)) {
         setShowToolsMenu(false);
       }

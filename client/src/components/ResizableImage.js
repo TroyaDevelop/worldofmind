@@ -108,11 +108,10 @@ export const ResizableImage = Node.create({
         e.preventDefault();
         e.stopPropagation();
         
-        isResizing = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        startWidth = img.offsetWidth;
-        startHeight = img.offsetHeight;
+  isResizing = true;
+  startX = e.clientX;
+  startWidth = img.offsetWidth;
+  startHeight = img.offsetHeight;
 
         const handleMouseMove = (e) => {
           if (!isResizing) return;
