@@ -1,8 +1,12 @@
--- Создание базы данных World of Mind
+-- Создание базы данных World of Mind для MariaDB
 -- Этот скрипт создает полную структуру базы данных для приложения
+-- Оптимизировано для MariaDB
 
--- Создание базы данных
-CREATE DATABASE IF NOT EXISTS worldofmind DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Создание базы данных с оптимальными настройками для MariaDB
+CREATE DATABASE IF NOT EXISTS worldofmind 
+DEFAULT CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
+
 USE worldofmind;
 
 -- Удаляем существующие таблицы если они есть (для полного пересоздания)
@@ -11,18 +15,20 @@ DROP TABLE IF EXISTS users;
 
 -- Создание таблицы пользователей
 CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
+  email VARCHAR(100) DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_users_username (username)
+  INDEX idx_users_username (username),
+  INDEX idx_users_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Создание таблицы навыков
 CREATE TABLE skills (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
   article VARCHAR(255) NOT NULL,
   category VARCHAR(100) NOT NULL,
   description TEXT,
@@ -39,6 +45,14 @@ CREATE TABLE skills (
   FULLTEXT KEY idx_skills_text_search (article, description, text)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Оптимизация для MariaDB: настройка полнотекстового поиска
+ALTER TABLE skills ADD FULLTEXT(article, description);
+ALTER TABLE skills ADD FULLTEXT(text);
+
+-- Создание индексов для лучшей производительности в MariaDB
+CREATE INDEX idx_skills_composite ON skills(user_id, category, created_at);
+CREATE INDEX idx_skills_color ON skills(color);
+
 -- Создание тестового пользователя (по желанию)
 -- Пароль: test123 (будет захеширован в приложении)
 -- INSERT INTO users (username, password) VALUES ('testuser', '$2a$10$example.hash.here');
@@ -52,3 +66,6 @@ CREATE TABLE skills (
 SHOW TABLES;
 DESCRIBE users;
 DESCRIBE skills;
+
+-- Показать версию MariaDB
+SELECT VERSION() as 'MariaDB Version';
