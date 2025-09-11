@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DEFAULT_CATEGORY } from '../services/categoryService';
 
-const NeuronSkillsMap = ({ skills, activeCategory }) => {
+const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const navigate = useNavigate();
@@ -11,14 +12,31 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
 
   // Фильтрация навыков в зависимости от выбранной категории
   const filteredSkills = useMemo(() => {
-    return activeCategory === 'all'
-      ? skills
-      : skills.filter(skill => skill.category === activeCategory);
+    if (activeCategory === 'all') return skills;
+    
+    if (activeCategory.startsWith('category_')) {
+      const categoryId = parseInt(activeCategory.replace('category_', ''));
+      return skills.filter(skill => skill.category_id === categoryId);
+    }
+    
+    // Для обратной совместимости со старой системой категорий
+    // Также обрабатываем навыки с пустой категорией как "Разное"
+    return skills.filter(skill => {
+      const skillCategory = skill.category || DEFAULT_CATEGORY;
+      return skillCategory === activeCategory;
+    });
   }, [skills, activeCategory]);
 
   // Инициализация анимации
   useEffect(() => {
-    if (!canvasRef.current || !containerRef.current || !filteredSkills.length) return;
+    // Отладочная информация
+    console.log('NeuronSkillsMap: categories received:', categories);
+    console.log('NeuronSkillsMap: filteredSkills:', filteredSkills);
+    
+    if (!canvasRef.current || !containerRef.current) return;
+    
+    // Если нет навыков и нет категорий, не отображаем ничего
+    if (!filteredSkills.length && (!categories || !categories.length)) return;
 
     // Удаляем существующий tooltip, если он есть
     if (tooltipRef.current) {
@@ -63,80 +81,148 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       return 3; // Для очень большого количества
     };
     
-    // Определяем размер нейронов на основе количества
-    const nodeRadius = getNodeRadius(filteredSkills.length);
-
-    // Создаем узлы для навыков
-    const nodes = filteredSkills.map((skill) => {
-      // Создаем случайное распределение узлов по всей площади канваса
-      // Уменьшаем отступы от края для более плотного расположения
-      const x = getRandomNumber(canvas.width * 0.04, canvas.width * 0.96);
-      const y = getRandomNumber(canvas.height * 0.04, canvas.height * 0.96);
+    // Создаем все узлы: категории, подкатегории и навыки
+    const createHierarchicalNodes = () => {
+      const allNodes = [];
       
-      // Уменьшаем скорость движения для более стабильного отображения
-      const vx = getRandomNumber(-0.08, 0.08);
-      const vy = getRandomNumber(-0.08, 0.08);
-      
-      // Используем цвет навыка или случайный цвет
-      const color = skill.color || `hsl(${getRandomNumber(0, 360)}, 70%, 60%)`;
-      
-      return {
-        id: skill.id,
-        x,
-        y,
-        vx,
-        vy,
-        radius: nodeRadius, // Уменьшенный адаптивный размер узла
-        color,
-        title: skill.article,
-        description: skill.description || '',
-        category: skill.category,
-        connections: [] // Связи с другими узлами
-      };
-    });
-
-    nodesRef.current = nodes;
-
-    // Создаем связи между узлами одной категории
-    const categoryMap = {};
-    
-    nodes.forEach(node => {
-      if (!categoryMap[node.category]) {
-        categoryMap[node.category] = [];
-      }
-      categoryMap[node.category].push(node);
-    });
-    
-    // Для каждой категории создаем связи между узлами
-    // Адаптируем количество связей - меньше связей для большего количества узлов
-    Object.values(categoryMap).forEach(categoryNodes => {
-      const getOptimalConnectionCount = (count) => {
-        if (count <= 5) return Math.min(count - 1, 2);
-        if (count <= 15) return 2;
-        return 1; // Для очень большого количества только одна связь
-      };
-      
-      const connectionsCount = getOptimalConnectionCount(categoryNodes.length);
-      
-      categoryNodes.forEach(node => {
-        // Соединяем каждый узел с оптимальным числом узлов из той же категории
-        const nodesToConnect = Math.min(
-          categoryNodes.length - 1, 
-          Math.floor(getRandomNumber(1, connectionsCount + 1))
-        );
-        
-        const connections = new Set();
-        while (connections.size < nodesToConnect) {
-          const randomIndex = Math.floor(Math.random() * categoryNodes.length);
-          const targetNode = categoryNodes[randomIndex];
-          if (targetNode.id !== node.id) {
-            connections.add(targetNode.id);
+      // Создаем узлы категорий только если они содержат отфильтрованные навыки
+      if (categories && categories.length > 0) {
+        categories.filter(category => 
+          category.name && category.name.trim() !== ''
+        ).forEach((category) => {
+          // Проверяем, есть ли навыки в этой категории среди отфильтрованных
+          const categoryHasSkills = filteredSkills.some(skill => skill.category_id === category.id);
+          const showAllCategories = activeCategory === 'all';
+          const isSelectedCategory = activeCategory === `category_${category.id}`;
+          
+          // Показываем категорию если:
+          // 1. В ней есть навыки
+          // 2. Выбраны все категории (показываем все, даже пустые)
+          // 3. Эта категория выбрана конкретно
+          if (categoryHasSkills || showAllCategories || isSelectedCategory) {
+            const x = getRandomNumber(canvas.width * 0.1, canvas.width * 0.9);
+            const y = getRandomNumber(canvas.height * 0.1, canvas.height * 0.9);
+            const vx = getRandomNumber(-0.05, 0.05);
+            const vy = getRandomNumber(-0.05, 0.05);
+            
+            allNodes.push({
+              id: `category_${category.id}`,
+              type: 'category',
+              x,
+              y,
+              vx,
+              vy,
+              radius: 18, // Большой размер для категорий
+              color: category.color || '#3498db',
+              title: category.name,
+              description: category.description || '',
+              category: category.name,
+              data: category,
+              connections: []
+            });
+            
+            // Создаем узлы подкатегорий только если они содержат отфильтрованные навыки
+            if (category.subcategories && category.subcategories.length > 0) {
+              category.subcategories.filter(subcategory =>
+                subcategory.name && subcategory.name.trim() !== ''
+              ).forEach((subcategory) => {
+                const subcategoryHasSkills = filteredSkills.some(skill => skill.subcategory_id === subcategory.id);
+                
+                // Показываем подкатегорию если:
+                // 1. В ней есть навыки
+                // 2. Выбраны все категории (показываем все, даже пустые)
+                // 3. Выбрана родительская категория этой подкатегории
+                if (subcategoryHasSkills || showAllCategories || isSelectedCategory) {
+                  const x = getRandomNumber(canvas.width * 0.1, canvas.width * 0.9);
+                  const y = getRandomNumber(canvas.height * 0.1, canvas.height * 0.9);
+                  const vx = getRandomNumber(-0.06, 0.06);
+                  const vy = getRandomNumber(-0.06, 0.06);
+                  
+                  allNodes.push({
+                    id: `subcategory_${subcategory.id}`,
+                    type: 'subcategory',
+                    x,
+                    y,
+                    vx,
+                    vy,
+                    radius: 12, // Средний размер для подкатегорий
+                    color: subcategory.color || '#2ecc71',
+                    title: subcategory.name,
+                    description: subcategory.description || '',
+                    category: category.name,
+                    data: subcategory,
+                    parentId: `category_${category.id}`,
+                    connections: [`category_${category.id}`]
+                  });
+                }
+              });
+            }
           }
+        });
+      } else {
+        // No categories provided, creating skills only
+      }
+      
+      // Создаем узлы навыков
+      filteredSkills.forEach((skill) => {
+        const x = getRandomNumber(canvas.width * 0.04, canvas.width * 0.96);
+        const y = getRandomNumber(canvas.height * 0.04, canvas.height * 0.96);
+        const vx = getRandomNumber(-0.08, 0.08);
+        const vy = getRandomNumber(-0.08, 0.08);
+        
+        const color = skill.color || `hsl(${getRandomNumber(0, 360)}, 70%, 60%)`;
+        
+        const skillNode = {
+          id: `skill_${skill.id}`,
+          type: 'skill',
+          x,
+          y,
+          vx,
+          vy,
+          radius: 8, // Увеличиваем размер для лучшей кликабельности
+          color,
+          title: skill.article,
+          description: skill.description || '',
+          category: skill.category || DEFAULT_CATEGORY, // Используем "Разное" если категория пустая
+          data: skill,
+          connections: []
+        };
+        
+        // Связываем навык с подкатегорией или категорией
+        if (skill.subcategory_id) {
+          const parentId = `subcategory_${skill.subcategory_id}`;
+          skillNode.connections.push(parentId);
+          skillNode.parentId = parentId;
+        } else if (skill.category_id) {
+          const parentId = `category_${skill.category_id}`;
+          skillNode.connections.push(parentId);
+          skillNode.parentId = parentId;
+        } else if (!skill.category || skill.category.trim() === '') {
+          // Если категория пустая, присваиваем "Разное"
+          skillNode.category = DEFAULT_CATEGORY;
         }
         
-        node.connections = Array.from(connections);
+        allNodes.push(skillNode);
       });
-    });
+      
+      // Добавляем обратные связи от родителей к детям
+      allNodes.forEach(node => {
+        if (node.connections.length > 0) {
+          node.connections.forEach(parentId => {
+            const parentNode = allNodes.find(n => n.id === parentId);
+            if (parentNode && !parentNode.connections.includes(node.id)) {
+              parentNode.connections.push(node.id);
+            }
+          });
+        }
+      });
+      
+      return allNodes;
+    };
+
+    const nodes = createHierarchicalNodes();
+
+    nodesRef.current = nodes;
 
     // Создаем HTML-элемент подсказки и добавляем его в body
     const createTooltip = () => {
@@ -387,11 +473,11 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       
       // Проверяем, находится ли курсор над каким-либо узлом
       // Увеличиваем область обнаружения при меньшем размере нейронов
-      const detectionMultiplier = 10 / nodeRadius; // Чем меньше нейрон, тем больше множитель
+      const detectionMultiplier = 3; // Увеличиваем для лучшего обнаружения маленьких узлов
       
       for (let node of nodes) {
         const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
-        if (distance <= node.radius * Math.min(3, detectionMultiplier)) {
+        if (distance <= node.radius * detectionMultiplier) {
           hoveredNode = node;
           break;
         }
@@ -403,12 +489,22 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         titleElement.textContent = hoveredNode.title;
         
         const descriptionElement = tooltip.lastChild;
+        let descriptionText = '';
+        
+        // Добавляем информацию о типе узла
+        const nodeTypeText = hoveredNode.type === 'category' ? '📁 Категория' : 
+                           hoveredNode.type === 'subcategory' ? '📂 Подкатегория' : 
+                           '⚡ Навык';
+        
         if (hoveredNode.description) {
-          descriptionElement.textContent = hoveredNode.description;
-          descriptionElement.style.display = 'block';
+          descriptionText = `${nodeTypeText}\n${hoveredNode.description}`;
         } else {
-          descriptionElement.style.display = 'none';
+          descriptionText = nodeTypeText;
         }
+        
+        descriptionElement.textContent = descriptionText;
+        descriptionElement.style.display = 'block';
+        descriptionElement.style.whiteSpace = 'pre-line'; // Для отображения переносов строк
         
         // Позиционируем подсказку
         tooltip.style.left = `${event.clientX}px`;
@@ -447,13 +543,21 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
       const y = event.clientY - rect.top;
       
       // Проверяем, попал ли клик в какой-либо узел
-      // Используем такой же множитель для обнаружения как и при наведении
-      const detectionMultiplier = 10 / nodeRadius;
+      // Увеличиваем множитель для лучшего обнаружения, особенно для маленьких навыков
+      const detectionMultiplier = 3;
       
       for (let node of nodes) {
         const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
-        if (distance <= node.radius * Math.min(3, detectionMultiplier)) {
-          navigate(`/skills/${node.id}`);
+        if (distance <= node.radius * detectionMultiplier) {
+          // Переходим только к навыкам, игнорируем категории и подкатегории
+          if (node.type === 'skill') {
+            navigate(`/skills/${node.data.id}`);
+          } else if (node.type === 'category' || node.type === 'subcategory') {
+            // Клик по категории/подкатегории - можно добавить фильтрацию в будущем
+          } else {
+            // Это старый формат узла (без type), значит это навык
+            navigate(`/skills/${node.id}`);
+          }
           break;
         }
       }
@@ -479,15 +583,15 @@ const NeuronSkillsMap = ({ skills, activeCategory }) => {
         tooltipRef.current = null;
       }
     };
-  }, [filteredSkills, navigate]);
+  }, [filteredSkills, categories, activeCategory, navigate]);
 
   return (
     <div className="neuron-map-container" ref={containerRef}>
       <canvas ref={canvasRef} className="neuron-map-canvas"></canvas>
       
-      {!filteredSkills.length && (
+      {!filteredSkills.length && (!categories || !categories.length) && (
         <div className="no-skills-message">
-          <p>Нет навыков для отображения</p>
+          <p>Нет навыков и категорий для отображения</p>
         </div>
       )}
     </div>

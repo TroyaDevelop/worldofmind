@@ -181,6 +181,7 @@
       border-radius: 4px;
       overflow: hidden;
       
+      .dropdown-item,
       button {
         width: 100%;
         text-align: left;
@@ -192,6 +193,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        text-decoration: none;
         
         &:hover {
           background-color: rgba(0, 0, 0, 0.1);

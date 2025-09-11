@@ -3,8 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
-import { getSkillById, updateSkill, getCategories } from '../services/skillService';
+import { getSkillById, updateSkill } from '../services/skillService';
+import { getCategoriesHierarchy } from '../services/categoryService';
 import TipTapEditor from '../components/TipTapEditor';
+import '../assets/styles/CommonStyles.css';
 
 const EditSkill = () => {
   const { id } = useParams();
@@ -12,7 +14,9 @@ const EditSkill = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [existingCategories, setExistingCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [subcategories, setSubcategories] = useState([]);
 
   // Ссылка на экземпляр редактора TipTap
   const editorRef = React.useRef(null);
@@ -20,21 +24,20 @@ const EditSkill = () => {
   // Инициализация формы с использованием Formik
   const formik = useFormik({
     initialValues: {
-      article: '',
-      category: '',
+      name: '',
+      category_id: '',
+      subcategory_id: '',
       description: '',
       text: '',
       level: 'in_progress', // новое поле: степень изучения
       color: '#FDFF73', // по умолчанию "в процессе"
-      // Удаляем поле image: null
     },
     validationSchema: Yup.object({
-      article: Yup.string()
+      name: Yup.string()
         .required('Необходимо указать название навыка')
         .max(255, 'Название не должно превышать 255 символов'),
-      category: Yup.string()
-        .required('Необходимо указать категорию')
-        .max(100, 'Категория не должна превышать 100 символов'),
+      category_id: Yup.string()
+        .required('Необходимо выбрать категорию'),
       description: Yup.string()
         .max(200, 'Описание не должно превышать 200 символов'),
       text: Yup.string(),
@@ -63,40 +66,44 @@ const EditSkill = () => {
     enableReinitialize: true // Важно для повторной инициализации формы при получении данных с сервера
   });
 
+  // Обновление подкатегорий при выборе категории
+  useEffect(() => {
+    if (selectedCategory) {
+      const category = categories.find(cat => cat.id === parseInt(selectedCategory));
+      setSubcategories(category?.subcategories || []);
+    } else {
+      setSubcategories([]);
+    }
+  }, [selectedCategory, categories]);
+
   // Загрузка данных навыка и списка категорий при монтировании компонента
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Загружаем данные навыка и категории параллельно
-        const [skill, categories] = await Promise.all([
+        const [skill, categoriesData] = await Promise.all([
           getSkillById(id),
-          getCategories()
+          getCategoriesHierarchy()
         ]);
         
         // Устанавливаем значения формы из полученных данных
-        // Только если пользователь ещё не менял level вручную
-        if (
-          formik.values.article === '' &&
-          formik.values.category === '' &&
-          formik.values.description === '' &&
-          formik.values.text === ''
-        ) {
-          formik.setValues({
-            article: skill.article,
-            category: skill.category,
-            description: skill.description || '',
-            text: skill.text || '',
-            level: skill.level || 'in_progress',
-            color: skill.color || '#FDFF73',
-          });
+        formik.setValues({
+          name: skill.name || skill.article || '', // поддержка старого поля
+          category_id: skill.category_id || '', 
+          subcategory_id: skill.subcategory_id || '',
+          description: skill.description || '',
+          text: skill.text || '',
+          level: skill.level || 'in_progress',
+          color: skill.color || '#FDFF73',
+        });
+        
+        setCategories(categoriesData || []);
+        
+        // Устанавливаем выбранную категорию для загрузки подкатегорий
+        if (skill.category_id) {
+          setSelectedCategory(skill.category_id.toString());
         }
         
-        setExistingCategories(categories || []);
-        
-        // Удаляем установку URL для изображения
-        // if (skill.image) {
-        //   setCurrentImageUrl(`http://localhost:5000/uploads/${skill.image}`);
-        // }
       } catch (err) {
         setError(err.message || 'Не удалось загрузить данные навыка');
         console.error('Ошибка при загрузке данных:', err);
@@ -106,7 +113,7 @@ const EditSkill = () => {
     };
 
     fetchData();
-  }, [id, formik]);
+  }, [id]); // Убираем formik из зависимостей
 
   // Удаляем обработчик изменения изображения
   // const handleImageChange = (e) => {
@@ -126,6 +133,15 @@ const EditSkill = () => {
   //     setImagePreview(null);
   //   }
   // };
+  
+  // Обработчик изменения категории
+  const handleCategoryChange = (e) => {
+    const categoryId = e.target.value;
+    setSelectedCategory(categoryId);
+    formik.setFieldValue('category_id', categoryId);
+    // Сбрасываем подкатегорию при смене категории
+    formik.setFieldValue('subcategory_id', '');
+  };
   
   // Обработчик изменения текста в редакторе TipTap
   const handleTextChange = (value) => {
@@ -166,52 +182,80 @@ const EditSkill = () => {
           <form onSubmit={formik.handleSubmit}>
             {/* Название навыка */}
             <div className="mb-3">
-              <label htmlFor="article" className="form-label">Название навыка *</label>
+              <label htmlFor="name" className="form-label">Название навыка *</label>
               <input
                 type="text"
-                id="article"
-                name="article"
-                className={`form-control ${formik.touched.article && formik.errors.article ? 'is-invalid' : ''}`}
+                id="name"
+                name="name"
+                className={`form-control ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''}`}
                 placeholder="Введите название навыка"
-                value={formik.values.article}
+                value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 disabled={isLoading}
               />
-              {formik.touched.article && formik.errors.article && (
-                <div className="invalid-feedback">{formik.errors.article}</div>
+              {formik.touched.name && formik.errors.name && (
+                <div className="invalid-feedback">{formik.errors.name}</div>
               )}
             </div>
 
             {/* Категория */}
             <div className="mb-3">
-              <label htmlFor="category" className="form-label">Категория *</label>
+              <label htmlFor="category_id" className="form-label">Категория *</label>
               <div className="input-group">
-                <input
-                  type="text"
-                  id="category"
-                  name="category"
-                  className={`form-control ${formik.touched.category && formik.errors.category ? 'is-invalid' : ''}`}
-                  placeholder="Введите или выберите категорию"
-                  value={formik.values.category}
-                  onChange={formik.handleChange}
+                <select
+                  id="category_id"
+                  name="category_id"
+                  className={`form-control ${formik.touched.category_id && formik.errors.category_id ? 'is-invalid' : ''}`}
+                  value={formik.values.category_id}
+                  onChange={handleCategoryChange}
                   onBlur={formik.handleBlur}
-                  list="categories-list"
                   disabled={isLoading}
-                />
-                <datalist id="categories-list">
-                  {existingCategories.map(category => (
-                    <option key={category} value={category} />
+                >
+                  <option value="">Выберите категорию</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
                   ))}
-                </datalist>
-                {formik.touched.category && formik.errors.category && (
-                  <div className="invalid-feedback">{formik.errors.category}</div>
+                </select>
+                {formik.touched.category_id && formik.errors.category_id && (
+                  <div className="invalid-feedback">{formik.errors.category_id}</div>
                 )}
               </div>
               <small className="text-muted">
-                Вы можете выбрать существующую категорию или создать новую
+                Выберите категорию из списка. 
+                Для управления категориями перейдите в <Link to="/settings">настройки</Link>.
               </small>
             </div>
+
+            {/* Подкатегория */}
+            {subcategories.length > 0 && (
+              <div className="mb-3">
+                <label htmlFor="subcategory_id" className="form-label">Подкатегория</label>
+                <div className="input-group">
+                  <select
+                    id="subcategory_id"
+                    name="subcategory_id"
+                    className="form-control"
+                    value={formik.values.subcategory_id}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    disabled={isLoading}
+                  >
+                    <option value="">Выберите подкатегорию (необязательно)</option>
+                    {subcategories.map(subcategory => (
+                      <option key={subcategory.id} value={subcategory.id}>
+                        {subcategory.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <small className="text-muted">
+                  Подкатегория не обязательна для заполнения.
+                </small>
+              </div>
+            )}
 
             {/* Степень изучения */}
             <div className="mb-3">
@@ -221,19 +265,19 @@ const EditSkill = () => {
                   <input type="radio" id="level-mastered" name="level" value="mastered"
                     checked={formik.values.level === 'mastered'}
                     onChange={formik.handleChange} disabled={isLoading} />
-                  <label htmlFor="level-mastered" style={{ color: '#67E667', marginLeft: 4 }}>Полностью изучено</label>
+                  <label htmlFor="level-mastered" className="level-label level-label-mastered">Полностью изучено</label>
                 </div>
                 <div>
                   <input type="radio" id="level-inprogress" name="level" value="in_progress"
                     checked={formik.values.level === 'in_progress'}
                     onChange={formik.handleChange} disabled={isLoading} />
-                  <label htmlFor="level-inprogress" style={{ color: '#FDFF73', marginLeft: 4 }}>В процессе</label>
+                  <label htmlFor="level-inprogress" className="level-label level-label-inprogress">В процессе</label>
                 </div>
                 <div>
                   <input type="radio" id="level-postponed" name="level" value="postponed"
                     checked={formik.values.level === 'postponed'}
                     onChange={formik.handleChange} disabled={isLoading} />
-                  <label htmlFor="level-postponed" style={{ color: '#e74c3c', marginLeft: 4 }}>Обучение отложено</label>
+                  <label htmlFor="level-postponed" className="level-label level-label-postponed">Обучение отложено</label>
                 </div>
               </div>
               {formik.touched.level && formik.errors.level && (

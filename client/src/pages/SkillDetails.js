@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../assets/styles/SkillDetails.css';
+import '../assets/styles/CommonStyles.css';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getSkillById, deleteSkill } from '../services/skillService';
 import { FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa';
@@ -86,7 +87,10 @@ const SkillDetails = () => {
 
       {/* Заголовок и кнопки действий */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1 style={{ borderLeft: `5px solid ${skill.color || '#3498db'}`, paddingLeft: '15px' }}>
+        <h1 
+          className="skill-header"
+          style={{ borderLeft: `5px solid ${skill.color || '#3498db'}` }}
+        >
           {skill.article}
         </h1>
         <div>

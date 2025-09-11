@@ -40,11 +40,10 @@ const TipTapEditor = forwardRef(({ value, onChange, placeholder = 'Введит�
   };
 
   const blockTypes = [
-    { id: 'info', label: 'Это интересно!', icon: '💡', color: '#17a2b8' },
-    { id: 'warning', label: 'Предупреждение', icon: '⚠️', color: '#ffc107' },
-    { id: 'example', label: 'Пример', icon: '📝', color: '#28a745' },
-    { id: 'note', label: 'Заметка', icon: '📌', color: '#6f42c1' },
-    { id: 'simple', label: 'Блок', icon: '📄', color: '#6c757d' },
+  { id: 'info', label: 'Это интересно!', icon: '💡', color: '#17a2b8' },
+  { id: 'warning', label: 'Предупреждение', icon: '⚠️', color: '#ffc107' },
+  { id: 'example', label: 'Пример', icon: '📝', color: '#28a745' },
+  { id: 'note', label: 'Заметка', icon: '📌', color: '#6f42c1' },
   ];
 
   // Закрытие меню при клике вне его

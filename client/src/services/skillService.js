@@ -111,8 +111,10 @@ export const createSkill = async (skillData) => {
     const formData = new FormData();
     
     // Добавляем все текстовые поля
-    formData.append('article', skillData.article);
-    formData.append('category', skillData.category);
+    formData.append('name', skillData.name);
+    formData.append('category_id', skillData.category_id || '');
+    formData.append('subcategory_id', skillData.subcategory_id || '');
+    formData.append('level', skillData.level);
     
     if (skillData.description) {
       formData.append('description', skillData.description);
@@ -156,11 +158,13 @@ export const updateSkill = async (id, skillData) => {
     
     // Вместо FormData используем обычный объект JSON
     const data = {
-      article: skillData.article,
-      category: skillData.category,
+      name: skillData.name, // Исправляем article на name
+      category_id: skillData.category_id || null,
+      subcategory_id: skillData.subcategory_id || null,
       description: skillData.description || '',
       text: processedText || '',
       color: skillData.color || '#3498db',
+      level: skillData.level || 'in_progress', // Добавляем поле level
       image: skillData.image || null // Добавляем поле image
     };
     

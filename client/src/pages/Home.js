@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllSkills, getCategories } from '../services/skillService';
+import { getCategoriesHierarchy } from '../services/categoryService';
 import { useSearch } from '../context/SearchContext';
 import { FaPlus, FaSearch, FaBrain, FaList, FaFilter } from 'react-icons/fa';
 import NeuronSkillsMap from '../components/NeuronSkillsMap';
@@ -9,6 +10,7 @@ const Home = () => {
   const { searchQuery, isSearchActive } = useSearch();
   const [skills, setSkills] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [hierarchicalCategories, setHierarchicalCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
@@ -19,12 +21,19 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [skillsData, categoriesData] = await Promise.all([
+        console.log('Загружаем данные...');
+        const [skillsData, categoriesData, hierarchicalCategoriesData] = await Promise.all([
           getAllSkills(),
-          getCategories()
+          getCategories(),
+          getCategoriesHierarchy()
         ]);
+        console.log('skillsData:', skillsData);
+        console.log('categoriesData:', categoriesData);
+        console.log('hierarchicalCategoriesData:', hierarchicalCategoriesData);
+        
         setSkills(skillsData || []);
         setCategories(categoriesData || []);
+        setHierarchicalCategories(hierarchicalCategoriesData || []);
       } catch (err) {
         console.error('Ошибка при загрузке данных:', err);
         setError(err.message || 'Не удалось загрузить данные');
@@ -34,6 +43,34 @@ const Home = () => {
     };
 
     fetchData();
+  }, []);
+
+  // Обновление данных при фокусе на странице (когда пользователь возвращается)
+  useEffect(() => {
+    const handleFocus = async () => {
+      try {
+        console.log('Обновляем данные при фокусе...');
+        const [skillsData, categoriesData, hierarchicalCategoriesData] = await Promise.all([
+          getAllSkills(),
+          getCategories(),
+          getCategoriesHierarchy()
+        ]);
+        console.log('Обновленные данные - hierarchicalCategoriesData:', hierarchicalCategoriesData);
+        
+        setSkills(skillsData || []);
+        setCategories(categoriesData || []);
+        setHierarchicalCategories(hierarchicalCategoriesData || []);
+      } catch (err) {
+        console.error('Ошибка при обновлении данных:', err);
+      }
+    };
+
+    // Слушаем событие фокуса окна
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   // Закрытие выпадающего списка при клике вне его
@@ -54,7 +91,14 @@ const Home = () => {
 
     // Фильтрация по категории
     if (activeCategory !== 'all') {
-      filteredSkills = filteredSkills.filter(skill => skill.category === activeCategory);
+      if (activeCategory.startsWith('category_')) {
+        // Новая иерархическая система - фильтруем по category_id
+        const categoryId = parseInt(activeCategory.replace('category_', ''));
+        filteredSkills = filteredSkills.filter(skill => skill.category_id === categoryId);
+      } else {
+        // Старая система - фильтруем по текстовому полю category
+        filteredSkills = filteredSkills.filter(skill => skill.category === activeCategory);
+      }
     }
 
     // Поиск по тексту (если активен)
@@ -79,11 +123,27 @@ const Home = () => {
     const groupedSkills = {};
     
     getFilteredSkills().forEach(skill => {
-      if (!groupedSkills[skill.category]) {
-        groupedSkills[skill.category] = [];
+      // Определяем название категории для группировки
+      let categoryName = skill.category; // Старая система
+      
+      // Если у навыка есть category_id, ищем название в hierarchicalCategories
+      if (skill.category_id && hierarchicalCategories.length > 0) {
+        const category = hierarchicalCategories.find(cat => cat.id === skill.category_id);
+        if (category) {
+          categoryName = category.name;
+        }
       }
       
-      groupedSkills[skill.category].push(skill);
+      // Если категория не определена, используем "Разное"
+      if (!categoryName || categoryName.trim() === '') {
+        categoryName = 'Разное';
+      }
+      
+      if (!groupedSkills[categoryName]) {
+        groupedSkills[categoryName] = [];
+      }
+      
+      groupedSkills[categoryName].push(skill);
     });
     
     return groupedSkills;
@@ -91,7 +151,15 @@ const Home = () => {
 
   // Функция для отображения текущей выбранной категории
   const getActiveCategoryText = () => {
-    return activeCategory === 'all' ? 'Все категории' : activeCategory;
+    if (activeCategory === 'all') return 'Все категории';
+    
+    if (activeCategory.startsWith('category_')) {
+      const categoryId = parseInt(activeCategory.replace('category_', ''));
+      const category = hierarchicalCategories.find(cat => cat.id === categoryId);
+      return category ? category.name : activeCategory;
+    }
+    
+    return activeCategory;
   };
 
   // Функция для конвертации HEX цвета в RGB
@@ -193,7 +261,32 @@ const Home = () => {
               >
                 Все категории
               </button>
-              {categories.map((category) => (
+              
+              {/* Иерархические категории */}
+              {hierarchicalCategories.filter(category => 
+                category.name && category.name.trim() !== ''
+              ).map((category) => {
+                return (
+                <button
+                  key={category.id}
+                  className={`dropdown-item fw-bold ${activeCategory === `category_${category.id}` ? 'active' : ''}`}
+                  onClick={() => {
+                    setActiveCategory(`category_${category.id}`);
+                    setIsDropdownOpen(false);
+                  }}
+                  style={{ color: category.color || '#3498db' }}
+                >
+                  🔍 {category.name}
+                </button>
+                );
+              })}
+              
+              {/* Старые категории (для обратной совместимости) */}
+              {categories.filter(category => 
+                category && 
+                category.trim() !== '' &&
+                !hierarchicalCategories.some(hcat => hcat.name === category)
+              ).map((category) => (
                 <button
                   key={category}
                   className={`dropdown-item ${activeCategory === category ? 'active' : ''}`}
@@ -235,9 +328,13 @@ const Home = () => {
         </div>
       )}
 
-      {/* Нейронная визуализация навыков */}
+      {/* Нейронная визуализация навыков с иерархией */}
       {skills.length > 0 && viewMode === 'neuron' && (
-        <NeuronSkillsMap skills={getFilteredSkills()} activeCategory={activeCategory} />
+        <NeuronSkillsMap 
+          skills={getFilteredSkills()} 
+          categories={hierarchicalCategories}
+          activeCategory={activeCategory} 
+        />
       )}
 
       {/* Отображение навыков по категориям в формате списка */}

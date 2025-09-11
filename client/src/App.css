@@ -28,6 +28,9 @@
   --button-bg: #ffffff;
   --placeholder-color: #6c757d;
   --accent-color: #0ea5e9;
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.15);
+  --shadow-strong: rgba(0, 0, 0, 0.2);
 }
 
 /* Стили для тёмной темы */
@@ -36,7 +39,7 @@
   --text-color: #e0e0e0;
   --card-bg: #1e1e1e;
   --card-header-bg: #252525;
-  --card-border: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.1);
   --header-bg: #1a1a1a;
   --header-text: #f8f9fa;
   --input-bg: #2c2c2c;
@@ -49,6 +52,9 @@
   --button-bg: #404040;
   --placeholder-color: #888;
   --accent-color: #0ea5e9;
+  --shadow-light: rgba(255, 255, 255, 0.1);
+  --shadow-medium: rgba(255, 255, 255, 0.15);
+  --shadow-strong: rgba(255, 255, 255, 0.2);
   
   /* Переопределение некоторых основных цветов */
   --light-color: #1a1a1a;

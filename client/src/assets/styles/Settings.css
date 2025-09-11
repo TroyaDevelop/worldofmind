@@ -1,0 +1,220 @@
+/* Стили кнопки с галочкой в ночной теме */
+.dark-mode button.btn-success.settings-form-control {
+  background-color: #23272b !important;
+  border: 2px solid #3498db !important;
+  color: #3498db !important;
+}
+.dark-mode button.btn-success.settings-form-control svg {
+  color: #3498db !important;
+}
+.dark-mode button.btn-success.settings-form-control:hover,
+.dark-mode button.btn-success.settings-form-control:focus {
+  background-color: #3498db !important;
+  color: #fff !important;
+}
+.dark-mode button.btn-success.settings-form-control:hover svg,
+.dark-mode button.btn-success.settings-form-control:focus svg {
+  color: #fff !important;
+}
+
+/* Settings page styles */
+
+/* Category form container */
+.category-form-card {
+  border: 2px dashed #0ea5e9;
+  border-radius: 0.75rem;
+}
+
+/* Category form content */
+.category-form-body {
+  padding: 1.5rem;
+}
+
+/* Category form title */
+.category-form-title {
+  margin-bottom: 1rem;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: none;
+  transition: none;
+}
+/* Category form input */
+.category-form-input {
+  border-radius: 0.5rem;
+  width: 320px;
+  height: 42px;
+  padding: 0 16px;
+  font-size: 16px;
+  box-sizing: border-box;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Category cancel button */
+.category-cancel-btn {
+  border-radius: 0.5rem;
+  min-width: 50px;
+  height: 42px;
+  font-size: 16px;
+  padding: 0 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Category tree */
+.categories-tree {
+  margin-top: 1rem;
+}
+
+.category-node {
+  margin-bottom: 1.5rem;
+}
+
+.category-card {
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+/* Subcategory item */
+.subcategory-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.dark-mode .subcategory-item {
+  background-color: #23272b;
+  border-color: #343a40;
+  color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+/* Subcategory form */
+.subcategory-form {
+  background-color: #f8f9fa;
+  border: 2px dashed #28a745;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.dark-mode .subcategory-form {
+  background-color: #23272b;
+  border: 2px dashed #20c997;
+}
+
+.dark-mode .subcategory-form .form-control.form-control-sm.settings-form-control {
+  background-color: #23272b;
+  color: #e2e8f0;
+  border: 1px solid #343a40;
+}
+
+/* Tab navigation */
+.tab-nav {
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 0;
+}
+
+.dark-mode .tab-nav {
+  border-bottom-color: #495057;
+}
+
+.tab-button {
+  border-radius: 0.5rem 0.5rem 0 0;
+  border: none;
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+/* Tab content area */
+.tab-content-area {
+  border-radius: 0 0.5rem 0.5rem 0.5rem;
+  padding: 24px;
+  min-height: 400px;
+}
+
+/* Profile avatar */
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  font-size: 2rem;
+  color: white;
+}
+
+.profile-avatar-btn {
+  border-radius: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Add category button */
+.add-category-btn {
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Add subcategory button */
+.add-subcategory-btn {
+  border-radius: 0.5rem;
+  min-width: 120px;
+  padding: 0 16px;
+  height: 42px;
+  font-size: 16px;
+  font-weight: 500;
+  background: #0ea5e9;
+  color: #fff;
+  border: 1px solid #0ea5e9;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.dark-mode .add-subcategory-btn {
+  background: #0d6efd;
+  color: #fff;
+  border: 1px solid #0d6efd;
+}
+
+/* Empty state */
+.empty-state {
+  margin-top: 3rem;
+  padding: 3rem 0;
+}
+
+.empty-state-icon {
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.empty-state-btn {
+  border-radius: 0.5rem;
+}
+
+/* Button groups */
+.action-btn-group .btn {
+  border-radius: 0.25rem;
+}
+
+.action-btn-group .btn:first-child {
+  border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.action-btn-group .btn:last-child {
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+/* Form controls */
+.settings-form-control {
+  border-radius: 0.5rem;
+}
+
+/* Loading spinner container */
+.loading-container {
+  text-align: center;
+  margin-bottom: 1rem;
+}

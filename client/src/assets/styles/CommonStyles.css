@@ -1,0 +1,174 @@
+/* Common form styles */
+
+/* Status level labels */
+.level-label {
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.level-label-mastered {
+  color: #67E667;
+}
+
+.level-label-inprogress {
+  color: #FDFF73;
+}
+
+.level-label-postponed {
+  color: #e74c3c;
+}
+
+/* Dark theme adjustments for level labels */
+[data-bs-theme="dark"] .level-label-mastered {
+  color: #5cbf5c;
+}
+
+[data-bs-theme="dark"] .level-label-inprogress {
+  color: #f5f56b;
+}
+
+[data-bs-theme="dark"] .level-label-postponed {
+  color: #dc3545;
+}
+
+/* Modal backdrop */
+.modal-backdrop-custom {
+  z-index: 1040;
+}
+
+.modal-overlay {
+  z-index: 1050;
+}
+
+/* Skill header with border */
+.skill-header {
+  padding-left: 15px;
+  margin-bottom: 1rem;
+}
+
+/* Neuron map container */
+.neuron-map-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Color picker section */
+.color-picker-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="dark"] .color-picker-section {
+  border-color: #495057;
+  background-color: #343a40;
+}
+
+/* Category filter in Home */
+.category-filter {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.category-filter:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .category-filter:hover {
+  box-shadow: 0 2px 4px rgba(255,255,255,0.1);
+}
+
+/* Button hover effects */
+.btn-hover-lift {
+  transition: all 0.2s ease;
+}
+
+.btn-hover-lift:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+[data-bs-theme="dark"] .btn-hover-lift:hover {
+  box-shadow: 0 4px 8px rgba(255,255,255,0.1);
+}
+
+/* Form input focus states */
+.form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+[data-bs-theme="dark"] .form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .card-hover:hover {
+  box-shadow: 0 8px 16px rgba(255,255,255,0.05);
+}
+
+/* Loading states */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+[data-bs-theme="dark"] .loading-overlay {
+  background-color: rgba(33, 37, 41, 0.8);
+}
+
+/* Badge styles */
+.badge-status {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Icon buttons */
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive text */
+@media (max-width: 768px) {
+  .text-responsive {
+    font-size: 0.875rem;
+  }
+  
+  .btn-responsive {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}

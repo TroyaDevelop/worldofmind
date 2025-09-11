@@ -10,15 +10,25 @@ class Skill {
           s.user_id,
           s.article,
           s.category,
+          s.category_id,
+          s.subcategory_id,
           s.description,
           s.text,
           s.color,
           s.image,
+          s.position_x,
+          s.position_y,
           s.created_at,
           s.updated_at,
-          u.username 
+          u.username,
+          c.name as category_name,
+          c.color as category_color,
+          sc.name as subcategory_name,
+          sc.color as subcategory_color
         FROM skills s 
         JOIN users u ON s.user_id = u.id 
+        LEFT JOIN categories c ON s.category_id = c.id
+        LEFT JOIN subcategories sc ON s.subcategory_id = sc.id
         ORDER BY s.created_at DESC
       `);
       
@@ -36,9 +46,17 @@ class Skill {
   static async getAllByUserId(userId) {
     try {
       const [rows] = await db.query(`
-        SELECT s.*, u.username 
+        SELECT 
+          s.*,
+          u.username,
+          c.name as category_name,
+          c.color as category_color,
+          sc.name as subcategory_name,
+          sc.color as subcategory_color
         FROM skills s 
         JOIN users u ON s.user_id = u.id 
+        LEFT JOIN categories c ON s.category_id = c.id
+        LEFT JOIN subcategories sc ON s.subcategory_id = sc.id
         WHERE s.user_id = ?
         ORDER BY s.created_at DESC
       `, [userId]);
@@ -86,13 +104,16 @@ class Skill {
       let query = `
         SELECT DISTINCT category 
         FROM skills 
+        WHERE category IS NOT NULL 
+          AND category != '' 
+          AND TRIM(category) != ''
       `;
       
       let params = [];
       
       // Если передан userId, добавляем условие проверки владельца
       if (userId) {
-        query += ' WHERE user_id = ?';
+        query += ' AND user_id = ?';
         params.push(userId);
       }
       
@@ -114,13 +135,41 @@ class Skill {
   static async create(skillData) {
     try {
       // Используем правильные имена полей из таблицы skills
-      const { article, category, description, text, color, image, user_id } = skillData;
+      const { 
+        name,
+        article, 
+        category, 
+        category_id, 
+        subcategory_id, 
+        description, 
+        text, 
+        color, 
+        image, 
+        position_x, 
+        position_y, 
+        user_id 
+      } = skillData;
       
       // В запросе указываем только поля, которые есть в таблице
       const [result] = await db.query(`
-        INSERT INTO skills (article, category, description, text, color, image, user_id) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `, [article, category, description, text, color, image, user_id]);
+        INSERT INTO skills (
+          article, category, category_id, subcategory_id, 
+          description, text, color, image, position_x, position_y, user_id
+        ) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, [
+        name || article,
+        category, 
+        category_id, 
+        subcategory_id, 
+        description, 
+        text, 
+        color, 
+        image, 
+        position_x || 0, 
+        position_y || 0, 
+        user_id
+      ]);
       
       if (result.affectedRows === 0) {
         return { error: 'Ошибка создания навыка' };
@@ -148,15 +197,18 @@ class Skill {
       }
       
       // Используем правильные имена полей из таблицы skills
-      const { article, category, description, text, color, image } = skillData;
+      const { name, article, category, category_id, subcategory_id, description, text, color, level, image } = skillData;
+      
+      // Используем name или article для обратной совместимости
+      const skillName = name || article;
       
       const [result] = await db.query(`
         UPDATE skills 
-        SET article = ?, category = ?, description = ?, 
-            text = ?, color = ?, image = ?,
+        SET name = ?, article = ?, category = ?, category_id = ?, subcategory_id = ?,
+            description = ?, text = ?, color = ?, level = ?, image = ?,
             updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
-      `, [article, category, description, text, color, image, id]);
+      `, [skillName, skillName, category, category_id, subcategory_id, description, text, color, level, image, id]);
       
       if (result.affectedRows === 0) {
         return { error: 'Ошибка обновления навыка' };

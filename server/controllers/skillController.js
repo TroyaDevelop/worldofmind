@@ -2,6 +2,18 @@ const Skill = require('../models/Skill');
 const fs = require('fs');
 const path = require('path');
 
+// Константа для категории по умолчанию
+const DEFAULT_CATEGORY = 'Разное';
+
+// Функция для обеспечения существования категории "Разное"
+const ensureDefaultCategory = async (category) => {
+  // Если категория пустая, null или undefined, возвращаем "Разное"
+  if (!category || category.trim() === '') {
+    return DEFAULT_CATEGORY;
+  }
+  return category.trim();
+};
+
 // Получение всех навыков пользователя
 exports.getAll = async (req, res) => {
   try {
@@ -45,11 +57,27 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { article, category, description, text, color } = req.body;
+    const { 
+      name, 
+      article, // для обратной совместимости
+      category, // для обратной совместимости
+      category_id,
+      subcategory_id,
+      description, 
+      text, 
+      color,
+      level 
+    } = req.body;
+    
+    // Используем name или article для названия
+    const skillName = name || article;
+    
+    // Обеспечиваем наличие категории (используем "Разное" если пустая)
+    const finalCategory = await ensureDefaultCategory(category);
     
     // Валидация данных
-    if (!article || !category) {
-      return res.status(400).json({ error: 'Необходимо указать название и категорию навыка' });
+    if (!skillName) {
+      return res.status(400).json({ error: 'Необходимо указать название навыка' });
     }
     
     // Валидация длины описания
@@ -59,12 +87,16 @@ exports.create = async (req, res) => {
     
     // Формирование данных для создания
     const skillData = {
-      user_id: userId, // Используем user_id вместо userId
-      article,
-      category,
+      user_id: userId,
+      name: skillName,
+      article: skillName, // для обратной совместимости
+      category: finalCategory, // используем обработанную категорию
+      category_id: category_id || null,
+      subcategory_id: subcategory_id || null,
       description: description || '',
       text: text || '',
       color: color || '#3498db',
+      level: level || 'in_progress',
       image: req.file ? req.file.filename : null
     };
     
@@ -95,12 +127,29 @@ exports.update = async (req, res) => {
     console.log('ID навыка:', skillId);
     console.log('ID пользователя:', userId);
     
-    const { article, category, description, text, color, image } = req.body;
+    const { 
+      name,
+      article, // для обратной совместимости
+      category,
+      category_id,
+      subcategory_id,
+      description, 
+      text, 
+      color, 
+      level, // Добавляем level
+      image 
+    } = req.body;
+    
+    // Используем name или article для названия
+    const skillName = name || article;
+    
+    // Обеспечиваем наличие категории (используем "Разное" если пустая)
+    const finalCategory = await ensureDefaultCategory(category);
     
     // Валидация данных
-    if (!article || !category) {
-      console.log('Ошибка валидации: article =', article, 'category =', category);
-      return res.status(400).json({ error: 'Необходимо указать название и категорию навыка' });
+    if (!skillName) {
+      console.log('Ошибка валидации: name/article не указано');
+      return res.status(400).json({ error: 'Необходимо указать название навыка' });
     }
     
     // Валидация длины описания
@@ -119,11 +168,15 @@ exports.update = async (req, res) => {
     
     // Формирование данных для обновления
     const skillData = {
-      article: article.trim(),
-      category: category.trim(),
+      name: skillName.trim(),
+      article: skillName.trim(), // для обратной совместимости
+      category: finalCategory, // используем обработанную категорию
+      category_id: category_id || null,
+      subcategory_id: subcategory_id || null,
       description: description ? description.trim() : '',
       text: text || '',
       color: color || '#3498db',
+      level: level || 'in_progress', // Добавляем level
       // Используем переданное изображение или сохраняем существующее
       image: image || existingSkill.image
     };

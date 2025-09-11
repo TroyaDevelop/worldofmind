@@ -1,3 +1,11 @@
+.skill-content .info-block-note ul,
+.skill-content .info-block-note ol {
+  margin-left: 0;
+  padding-left: 0.5em;
+  margin-right: 0;
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+}
 .skill-content {
   line-height: 1.1;
   font-size: 1.05rem;
@@ -101,11 +109,6 @@
 .skill-content .info-block-note {
   border-color: #6f42c1;
   background-color: rgba(111, 66, 193, 0.1);
-}
-
-.skill-content .info-block-simple {
-  border-color: #6c757d;
-  background-color: rgba(108, 117, 125, 0.1);
 }
 
 .skill-content .info-block-info::before {

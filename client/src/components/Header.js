@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSearch } from '../context/SearchContext';
-import { FaSearch, FaSignOutAlt, FaUser, FaMoon, FaSun } from 'react-icons/fa';
+import { FaSearch, FaSignOutAlt, FaUser, FaMoon, FaSun, FaCog } from 'react-icons/fa';
 import '../assets/styles/Header.scss';
 
 const Header = () => {
@@ -138,6 +138,9 @@ const Header = () => {
                       <FaUser /> {user?.username}
                     </span>
                     <div className="dropdown-content">
+                      <Link to="/settings" className="dropdown-item">
+                        <FaCog /> Настройки
+                      </Link>
                       <button onClick={handleLogout}>
                         <FaSignOutAlt /> Выйти
                       </button>
