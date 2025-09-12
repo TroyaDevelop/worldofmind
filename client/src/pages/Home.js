@@ -264,7 +264,7 @@ const Home = () => {
               
               {/* Иерархические категории */}
               {hierarchicalCategories.filter(category => 
-                category.name && category.name.trim() !== ''
+                category.name && category.name.trim() !== '' && category.name !== 'Разное'
               ).map((category) => {
                 return (
                 <button
@@ -274,9 +274,8 @@ const Home = () => {
                     setActiveCategory(`category_${category.id}`);
                     setIsDropdownOpen(false);
                   }}
-                  style={{ color: category.color || '#3498db' }}
                 >
-                  🔍 {category.name}
+                  {category.name}
                 </button>
                 );
               })}
@@ -285,6 +284,7 @@ const Home = () => {
               {categories.filter(category => 
                 category && 
                 category.trim() !== '' &&
+                category !== 'Разное' &&
                 !hierarchicalCategories.some(hcat => hcat.name === category)
               ).map((category) => (
                 <button

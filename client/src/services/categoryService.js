@@ -1,8 +1,5 @@
 import api from './api';
 
-// Константа для категории по умолчанию
-export const DEFAULT_CATEGORY = 'Разное';
-
 // Категории
 export const getCategories = async () => {
   try {
@@ -15,11 +12,6 @@ export const getCategories = async () => {
       typeof category === 'string' && 
       category.trim() !== ''
     );
-    
-    // Убеждаемся, что "Разное" всегда есть в списке
-    if (!categories.includes(DEFAULT_CATEGORY)) {
-      categories = [DEFAULT_CATEGORY, ...categories];
-    }
     
     return categories;
   } catch (error) {

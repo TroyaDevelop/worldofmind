@@ -2,18 +2,6 @@ const Skill = require('../models/Skill');
 const fs = require('fs');
 const path = require('path');
 
-// Константа для категории по умолчанию
-const DEFAULT_CATEGORY = 'Разное';
-
-// Функция для обеспечения существования категории "Разное"
-const ensureDefaultCategory = async (category) => {
-  // Если категория пустая, null или undefined, возвращаем "Разное"
-  if (!category || category.trim() === '') {
-    return DEFAULT_CATEGORY;
-  }
-  return category.trim();
-};
-
 // Получение всех навыков пользователя
 exports.getAll = async (req, res) => {
   try {
@@ -72,9 +60,6 @@ exports.create = async (req, res) => {
     // Используем name или article для названия
     const skillName = name || article;
     
-    // Обеспечиваем наличие категории (используем "Разное" если пустая)
-    const finalCategory = await ensureDefaultCategory(category);
-    
     // Валидация данных
     if (!skillName) {
       return res.status(400).json({ error: 'Необходимо указать название навыка' });
@@ -90,7 +75,7 @@ exports.create = async (req, res) => {
       user_id: userId,
       name: skillName,
       article: skillName, // для обратной совместимости
-      category: finalCategory, // используем обработанную категорию
+      category: category || '', // используем переданную категорию
       category_id: category_id || null,
       subcategory_id: subcategory_id || null,
       description: description || '',
@@ -143,9 +128,6 @@ exports.update = async (req, res) => {
     // Используем name или article для названия
     const skillName = name || article;
     
-    // Обеспечиваем наличие категории (используем "Разное" если пустая)
-    const finalCategory = await ensureDefaultCategory(category);
-    
     // Валидация данных
     if (!skillName) {
       console.log('Ошибка валидации: name/article не указано');
@@ -170,7 +152,7 @@ exports.update = async (req, res) => {
     const skillData = {
       name: skillName.trim(),
       article: skillName.trim(), // для обратной совместимости
-      category: finalCategory, // используем обработанную категорию
+      category: category || '', // используем переданную категорию
       category_id: category_id || null,
       subcategory_id: subcategory_id || null,
       description: description ? description.trim() : '',

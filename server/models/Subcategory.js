@@ -84,7 +84,22 @@ class Subcategory {
   // Обновить подкатегорию
   static async update(id, subcategoryData) {
     try {
-      const { category_id, name, color, description, position_x, position_y } = subcategoryData;
+      // Сначала получаем существующую подкатегорию
+      const existing = await this.getById(id);
+      if (existing.error) {
+        return existing;
+      }
+
+      // Используем существующие значения как значения по умолчанию
+      const { 
+        category_id = existing.category_id,
+        name = existing.name,
+        color = existing.color,
+        description = existing.description,
+        position_x = existing.position_x,
+        position_y = existing.position_y 
+      } = subcategoryData;
+
       await db.query(`
         UPDATE subcategories 
         SET category_id = ?, name = ?, color = ?, description = ?, position_x = ?, position_y = ?, updated_at = CURRENT_TIMESTAMP

@@ -59,7 +59,21 @@ class Category {
   // Обновить категорию
   static async update(id, categoryData) {
     try {
-      const { name, color, description, position_x, position_y } = categoryData;
+      // Сначала получаем существующую категорию
+      const existing = await this.getById(id);
+      if (existing.error) {
+        return existing;
+      }
+
+      // Используем существующие значения как значения по умолчанию
+      const { 
+        name = existing.name,
+        color = existing.color,
+        description = existing.description,
+        position_x = existing.position_x,
+        position_y = existing.position_y 
+      } = categoryData;
+
       await db.query(`
         UPDATE categories 
         SET name = ?, color = ?, description = ?, position_x = ?, position_y = ?, updated_at = CURRENT_TIMESTAMP

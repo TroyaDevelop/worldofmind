@@ -1,28 +1,56 @@
+/* Белый текст для элементов сортировки категорий */
+.dropdown-menu .dropdown-item {
+  color: #fff;
+}
+
+/* Скроллируемый выпадающий список категорий */
+.dropdown-menu {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* Кнопка сворачивания/разворачивания категории */
+.btn-link.p-0 {
+  border: none !important;
+  background: none !important;
+  color: inherit !important;
+  transition: color 0.2s ease;
+}
+
+.btn-link.p-0:hover {
+  color: #3498db !important;
+  text-decoration: none !important;
+}
+
+.btn-link.p-0:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
 /* Стили кнопки с галочкой в ночной теме */
 .dark-mode button.btn-success.settings-form-control {
-  background-color: #23272b !important;
-  border: 2px solid #3498db !important;
-  color: #3498db !important;
+  background-color: #23272b;
+  border: 2px solid #3498db;
+  color: #3498db;
 }
 .dark-mode button.btn-success.settings-form-control svg {
-  color: #3498db !important;
+  color: #3498db;
 }
 .dark-mode button.btn-success.settings-form-control:hover,
 .dark-mode button.btn-success.settings-form-control:focus {
-  background-color: #3498db !important;
-  color: #fff !important;
+  background-color: #3498db;
+  color: #fff;
 }
 .dark-mode button.btn-success.settings-form-control:hover svg,
 .dark-mode button.btn-success.settings-form-control:focus svg {
-  color: #fff !important;
+  color: #fff;
 }
-
-/* Settings page styles */
 
 /* Category form container */
 .category-form-card {
   border: 2px dashed #0ea5e9;
   border-radius: 0.75rem;
+  border: 2px dashed #0ea5e9;
 }
 
 /* Category form content */
@@ -105,7 +133,7 @@
 
 .dark-mode .subcategory-form {
   background-color: #23272b;
-  border: 2px dashed #20c997;
+  border: 2px dashed #0ea5e9;
 }
 
 .dark-mode .subcategory-form .form-control.form-control-sm.settings-form-control {
@@ -175,9 +203,9 @@
 }
 
 .dark-mode .add-subcategory-btn {
-  background: #0d6efd;
+  background: #0ea5e9;
   color: #fff;
-  border: 1px solid #0d6efd;
+  border: 1px solid #0ea5e9;
 }
 
 /* Empty state */
@@ -217,4 +245,70 @@
 .loading-container {
   text-align: center;
   margin-bottom: 1rem;
+}
+
+/* Палитра цветов */
+
+.color-palette {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 256px;
+  min-width: 256px;
+  max-width: 256px;
+  justify-content: center;
+  margin: 0;
+}
+
+/* Унифицированный размер для всех палитр */
+.color-option {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.color-option.selected {
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.color-option.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Темная тема для палитры */
+.dark-mode .color-palette {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .color-option:hover {
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-mode .color-option.selected {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
 }

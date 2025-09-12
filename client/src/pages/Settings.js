@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaArrowLeft, FaPlus, FaEdit, FaTrash, FaCog, FaCheck } from 'react-icons/fa';
+import { FaArrowLeft, FaPlus, FaEdit, FaTrash, FaCog, FaCheck, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import { 
   getCategoriesHierarchy,
   createCategory, 
@@ -11,6 +11,16 @@ import {
   deleteSubcategory 
 } from '../services/categoryService';
 import '../assets/styles/Settings.css';
+
+// Палитра из 24 цветов
+const COLOR_PALETTE = [
+  '#e74c3c', '#c0392b', '#d35400', '#e67e22',
+  '#f39c12', '#f1c40f', '#27ae60', '#2ecc71',
+  '#16a085', '#1abc9c', '#3498db', '#2980b9',
+  '#9b59b6', '#8e44ad', '#34495e', '#2c3e50',
+  '#95a5a6', '#7f8c8d', '#ff6b6b', '#4ecdc4',
+  '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'
+];
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('hierarchy');
@@ -24,12 +34,19 @@ const Settings = () => {
   const [showNewSubcategoryForm, setShowNewSubcategoryForm] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
+  const [newCategoryColor, setNewCategoryColor] = useState(COLOR_PALETTE[0]);
+  const [newSubcategoryColor, setNewSubcategoryColor] = useState(COLOR_PALETTE[0]);
   
   // Состояния для редактирования
   const [editingCategory, setEditingCategory] = useState(null);
   const [editingSubcategory, setEditingSubcategory] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState('');
   const [editSubcategoryName, setEditSubcategoryName] = useState('');
+  const [editCategoryColor, setEditCategoryColor] = useState('');
+  const [editSubcategoryColor, setEditSubcategoryColor] = useState('');
+
+  // Состояние для сворачивания/разворачивания категорий
+  const [collapsedCategories, setCollapsedCategories] = useState(new Set());
 
   // Загрузка категорий
   const fetchCategories = async () => {
@@ -37,6 +54,12 @@ const Settings = () => {
       setIsLoading(true);
       const data = await getCategoriesHierarchy();
       setCategories(data || []);
+      
+      // Сворачиваем все категории по умолчанию
+      if (data && data.length > 0) {
+        const allCategoryIds = new Set(data.map(category => category.id));
+        setCollapsedCategories(allCategoryIds);
+      }
     } catch (err) {
       setError('Ошибка при загрузке категорий');
       console.error(err);
@@ -54,6 +77,35 @@ const Settings = () => {
     setHasUnsavedChanges(true);
   };
 
+  // Функция для переключения состояния сворачивания категории
+  const toggleCategoryCollapse = (categoryId) => {
+    setCollapsedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  // Компонент палитры цветов
+  const ColorPalette = ({ selectedColor, onColorSelect, className = '' }) => (
+    <div className={`color-palette ${className}`}>
+      {COLOR_PALETTE.map((color, index) => (
+        <button
+          key={index}
+          type="button"
+          className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+          style={{ backgroundColor: color }}
+          onClick={() => onColorSelect(color)}
+          title={color}
+        />
+      ))}
+    </div>
+  );
+
   // Создание новой категории
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return;
@@ -62,10 +114,11 @@ const Settings = () => {
       setIsLoading(true);
       await createCategory({
         name: newCategoryName.trim(),
-        color: '#3498db'
+        color: newCategoryColor
       });
       
       setNewCategoryName('');
+      setNewCategoryColor(COLOR_PALETTE[0]);
       setShowNewCategoryForm(false);
       await fetchCategories();
       markAsChanged();
@@ -85,10 +138,11 @@ const Settings = () => {
       await createSubcategory({
         name: newSubcategoryName.trim(),
         category_id: categoryId,
-        color: '#2ecc71'
+        color: newSubcategoryColor
       });
       
       setNewSubcategoryName('');
+      setNewSubcategoryColor(COLOR_PALETTE[0]);
       setShowNewSubcategoryForm(null);
       await fetchCategories();
       markAsChanged();
@@ -107,11 +161,13 @@ const Settings = () => {
     try {
       setIsLoading(true);
       await updateCategory(categoryId, {
-        name: editCategoryName.trim()
+        name: editCategoryName.trim(),
+        color: editCategoryColor
       });
       
       setEditingCategory(null);
       setEditCategoryName('');
+      setEditCategoryColor('');
       await fetchCategories();
       markAsChanged();
     } catch (err) {
@@ -128,11 +184,13 @@ const Settings = () => {
     try {
       setIsLoading(true);
       await updateSubcategory(subcategoryId, {
-        name: editSubcategoryName.trim()
+        name: editSubcategoryName.trim(),
+        color: editSubcategoryColor
       });
       
       setEditingSubcategory(null);
       setEditSubcategoryName('');
+      setEditSubcategoryColor('');
       await fetchCategories();
       markAsChanged();
     } catch (err) {
@@ -225,7 +283,7 @@ const Settings = () => {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h3 className="mb-1">🌳 Древовидный редактор категорий</h3>
+          <h3 className="mb-1">Редактор категорий</h3>
           <p className="text-muted small mb-0">
             Управляйте структурой ваших категорий и подкатегорий
           </p>
@@ -264,6 +322,16 @@ const Settings = () => {
                   }
                 }}
               />
+            </div>
+            <div className="mt-2">
+              <label className="form-label text-muted small">Выберите цвет:</label>
+              <ColorPalette
+                selectedColor={newCategoryColor}
+                onColorSelect={setNewCategoryColor}
+                className="mb-2"
+              />
+            </div>
+            <div className="d-flex gap-2">
               <button
                 type="button"
                 className="btn btn-success btn-sm settings-form-control"
@@ -278,6 +346,7 @@ const Settings = () => {
                 onClick={() => {
                   setShowNewCategoryForm(false);
                   setNewCategoryName('');
+                  setNewCategoryColor(COLOR_PALETTE[0]);
                 }}
                 disabled={isLoading}
               >
@@ -300,40 +369,64 @@ const Settings = () => {
               }}
             >
               <div className="card-header d-flex justify-content-between align-items-center py-3">
-                <div className="d-flex align-items-center">
+                <div className="d-flex align-items-center flex-grow-1">
+                  {/* Кнопка сворачивания/разворачивания */}
+                  <button
+                    type="button"
+                    className="btn btn-link p-0 me-3 text-decoration-none"
+                    onClick={() => toggleCategoryCollapse(category.id)}
+                    title={collapsedCategories.has(category.id) ? "Развернуть категорию" : "Свернуть категорию"}
+                  >
+                    {collapsedCategories.has(category.id) ? (
+                      <FaChevronRight size={14} className="text-muted" />
+                    ) : (
+                      <FaChevronDown size={14} className="text-muted" />
+                    )}
+                  </button>
+                  
                   {editingCategory === category.id ? (
-                    <div className="d-flex gap-2 flex-grow-1">
-                      <input
-                        type="text"
-                        className="form-control settings-form-control"
-                        value={editCategoryName}
-                        onChange={(e) => setEditCategoryName(e.target.value)}
-                        disabled={isLoading}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && editCategoryName.trim()) {
-                            handleEditCategory(category.id);
-                          }
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-success btn-sm settings-form-control"
-                        onClick={() => handleEditCategory(category.id)}
-                        disabled={isLoading || !editCategoryName.trim()}
-                      >
-                        <FaCheck size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm settings-form-control"
-                        onClick={() => {
-                          setEditingCategory(null);
-                          setEditCategoryName('');
-                        }}
-                        disabled={isLoading}
-                      >
-                        ✕
-                      </button>
+                    <div className="flex-grow-1">
+                      <div className="d-flex gap-2 mb-2">
+                        <input
+                          type="text"
+                          className="form-control settings-form-control"
+                          value={editCategoryName}
+                          onChange={(e) => setEditCategoryName(e.target.value)}
+                          disabled={isLoading}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && editCategoryName.trim()) {
+                              handleEditCategory(category.id);
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-success btn-sm settings-form-control"
+                          onClick={() => handleEditCategory(category.id)}
+                          disabled={isLoading || !editCategoryName.trim()}
+                        >
+                          <FaCheck size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm settings-form-control"
+                          onClick={() => {
+                            setEditingCategory(null);
+                            setEditCategoryName('');
+                            setEditCategoryColor('');
+                          }}
+                          disabled={isLoading}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div>
+                        <label className="form-label text-muted small">Выберите цвет:</label>
+                        <ColorPalette
+                          selectedColor={editCategoryColor}
+                          onColorSelect={setEditCategoryColor}
+                        />
+                      </div>
                     </div>
                   ) : (
                     <div>
@@ -355,6 +448,7 @@ const Settings = () => {
                       onClick={() => {
                         setEditingCategory(category.id);
                         setEditCategoryName(category.name);
+                        setEditCategoryColor(category.color || COLOR_PALETTE[0]);
                       }}
                       disabled={isLoading}
                       title="Редактировать категорию"
@@ -374,160 +468,181 @@ const Settings = () => {
                 )}
               </div>
               
-              {/* Секция подкатегорий */}
-              <div className="card-body pt-0">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <div className="d-flex align-items-center">
-                    <span className="me-2 text-muted">└──</span>
-                    <h6 className="mb-0 text-muted">Подкатегории</h6>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-outline-success btn-sm add-subcategory-btn"
-                    onClick={() => setShowNewSubcategoryForm(category.id)}
-                    disabled={isLoading}
-                  >
-                    <FaPlus className="me-2" size={12} />
-                    Добавить подкатегорию
-                  </button>
-                </div>
-
-                {/* Форма создания подкатегории */}
-                {showNewSubcategoryForm === category.id && (
-                  <div className="mb-3 p-3 rounded subcategory-form">
-                    <div className="d-flex align-items-center mb-2">
-                      <span className="me-2">├─ ➕</span>
-                      <small className="text-muted">Новая подкатегория</small>
+              {/* Секция подкатегорий - показывается только если категория не свернута */}
+              {!collapsedCategories.has(category.id) && (
+                <div className="card-body pt-0">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="d-flex align-items-center">
+                      <span className="me-2 text-muted">└──</span>
+                      <h6 className="mb-0 text-muted">Подкатегории</h6>
                     </div>
-                    <div className="d-flex gap-2">
-                      <input
-                        type="text"
-                        className="form-control form-control-sm settings-form-control"
-                        placeholder="Название подкатегории..."
-                        value={newSubcategoryName}
-                        onChange={(e) => setNewSubcategoryName(e.target.value)}
-                        disabled={isLoading}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && newSubcategoryName.trim()) {
-                            handleCreateSubcategory(category.id);
-                          }
-                        }}
-                      />
-                      <button
-                        type="button"
-                        className="btn btn-success btn-sm settings-form-control"
-                        onClick={() => handleCreateSubcategory(category.id)}
-                        disabled={isLoading || !newSubcategoryName.trim()}
-                      >
-                        <FaCheck size={12} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-outline-secondary btn-sm settings-form-control"
-                        onClick={() => {
-                          setShowNewSubcategoryForm(null);
-                          setNewSubcategoryName('');
-                        }}
-                        disabled={isLoading}
-                      >
-                        ✕
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-outline-success btn-sm add-subcategory-btn"
+                      onClick={() => setShowNewSubcategoryForm(category.id)}
+                      disabled={isLoading}
+                    >
+                      <FaPlus className="me-2" size={12} />
+                      Добавить подкатегорию
+                    </button>
                   </div>
-                )}
 
-                {/* Список подкатегорий */}
-                {category.subcategories && category.subcategories.length > 0 ? (
-                  <div className="subcategories-tree ps-3">
-                    {category.subcategories.map((subcategory, subIndex) => (
-                      <div 
-                        key={subcategory.id} 
-                        className="subcategory-item d-flex justify-content-between align-items-center p-3 mb-2"
-                        style={{
-                          borderLeft: `3px solid ${category.color || '#3498db'}`
-                        }}
-                      >
-                        <div className="d-flex align-items-center">
-                          <span className="me-2 text-muted">
-                            {subIndex === category.subcategories.length - 1 ? '└─' : '├─'}
-                          </span>
-                          {/* Иконка файла удалена по просьбе пользователя */}
-                          {editingSubcategory === subcategory.id ? (
-                            <div className="d-flex gap-2 flex-grow-1">
-                              <input
-                                type="text"
-                                className="form-control form-control-sm settings-form-control"
-                                value={editSubcategoryName}
-                                onChange={(e) => setEditSubcategoryName(e.target.value)}
-                                disabled={isLoading}
-                                onKeyPress={(e) => {
-                                  if (e.key === 'Enter' && editSubcategoryName.trim()) {
-                                    handleEditSubcategory(subcategory.id);
-                                  }
-                                }}
-                              />
+                  {/* Форма создания подкатегории */}
+                  {showNewSubcategoryForm === category.id && (
+                    <div className="mb-3 p-3 rounded subcategory-form">
+                      <div className="d-flex align-items-center mb-2">
+                        <span className="me-2">├─ ➕</span>
+                        <small className="text-muted">Новая подкатегория</small>
+                      </div>
+                      <div className="d-flex gap-2 mb-2">
+                        <input
+                          type="text"
+                          className="form-control form-control-sm settings-form-control"
+                          placeholder="Название подкатегории..."
+                          value={newSubcategoryName}
+                          onChange={(e) => setNewSubcategoryName(e.target.value)}
+                          disabled={isLoading}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && newSubcategoryName.trim()) {
+                              handleCreateSubcategory(category.id);
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-success btn-sm settings-form-control"
+                          onClick={() => handleCreateSubcategory(category.id)}
+                          disabled={isLoading || !newSubcategoryName.trim()}
+                        >
+                          <FaCheck size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline-secondary btn-sm settings-form-control"
+                          onClick={() => {
+                            setShowNewSubcategoryForm(null);
+                            setNewSubcategoryName('');
+                            setNewSubcategoryColor(COLOR_PALETTE[0]);
+                          }}
+                          disabled={isLoading}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div>
+                        <label className="form-label text-muted small">Выберите цвет:</label>
+                        <ColorPalette
+                          selectedColor={newSubcategoryColor}
+                          onColorSelect={setNewSubcategoryColor}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Список подкатегорий */}
+                  {category.subcategories && category.subcategories.length > 0 ? (
+                    <div className="subcategories-tree ps-3">
+                      {category.subcategories.map((subcategory, subIndex) => (
+                        <div 
+                          key={subcategory.id} 
+                          className="subcategory-item d-flex justify-content-between align-items-center p-3 mb-2"
+                          style={{
+                            borderLeft: `3px solid ${subcategory.color || '#3498db'}`
+                          }}
+                        >
+                          <div className="d-flex align-items-center">
+                            <span className="me-2 text-muted">
+                              {subIndex === category.subcategories.length - 1 ? '└─' : '├─'}
+                            </span>
+                            {/* Иконка файла удалена по просьбе пользователя */}
+                            {editingSubcategory === subcategory.id ? (
+                              <div className="flex-grow-1">
+                                <div className="d-flex gap-2 mb-2">
+                                  <input
+                                    type="text"
+                                    className="form-control form-control-sm settings-form-control"
+                                    value={editSubcategoryName}
+                                    onChange={(e) => setEditSubcategoryName(e.target.value)}
+                                    disabled={isLoading}
+                                    onKeyPress={(e) => {
+                                      if (e.key === 'Enter' && editSubcategoryName.trim()) {
+                                        handleEditSubcategory(subcategory.id);
+                                      }
+                                    }}
+                                  />
+                                  <button
+                                    type="button"
+                                    className="btn btn-success btn-sm settings-form-control"
+                                    onClick={() => handleEditSubcategory(subcategory.id)}
+                                    disabled={isLoading || !editSubcategoryName.trim()}
+                                  >
+                                    <FaCheck size={12} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn btn-outline-secondary btn-sm settings-form-control"
+                                    onClick={() => {
+                                      setEditingSubcategory(null);
+                                      setEditSubcategoryName('');
+                                      setEditSubcategoryColor('');
+                                    }}
+                                    disabled={isLoading}
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                                <div>
+                                  <label className="form-label text-muted small">Выберите цвет:</label>
+                                  <ColorPalette
+                                    selectedColor={editSubcategoryColor}
+                                    onColorSelect={setEditSubcategoryColor}
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <span>
+                                {subcategory.name}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {!editingSubcategory && (
+                            <div className="btn-group action-btn-group">
                               <button
                                 type="button"
-                                className="btn btn-success btn-sm settings-form-control"
-                                onClick={() => handleEditSubcategory(subcategory.id)}
-                                disabled={isLoading || !editSubcategoryName.trim()}
+                                className="btn btn-outline-primary btn-sm"
+                                onClick={() => {
+                                  setEditingSubcategory(subcategory.id);
+                                  setEditSubcategoryName(subcategory.name);
+                                  setEditSubcategoryColor(subcategory.color || COLOR_PALETTE[0]);
+                                }}
+                                disabled={isLoading}
+                                title="Редактировать подкатегорию"
                               >
-                                <FaCheck size={12} />
+                                <FaEdit size={12} />
                               </button>
                               <button
                                 type="button"
-                                className="btn btn-outline-secondary btn-sm settings-form-control"
-                                onClick={() => {
-                                  setEditingSubcategory(null);
-                                  setEditSubcategoryName('');
-                                }}
+                                className="btn btn-outline-danger btn-sm"
+                                onClick={() => handleDeleteSubcategory(subcategory.id)}
                                 disabled={isLoading}
+                                title="Удалить подкатегорию"
                               >
-                                ✕
+                                <FaTrash size={12} />
                               </button>
                             </div>
-                          ) : (
-                            <span>
-                              {subcategory.name}
-                            </span>
                           )}
                         </div>
-                        
-                        {!editingSubcategory && (
-                          <div className="btn-group action-btn-group">
-                            <button
-                              type="button"
-                              className="btn btn-outline-primary btn-sm"
-                              onClick={() => {
-                                setEditingSubcategory(subcategory.id);
-                                setEditSubcategoryName(subcategory.name);
-                              }}
-                              disabled={isLoading}
-                              title="Редактировать подкатегорию"
-                            >
-                              <FaEdit size={12} />
-                            </button>
-                            <button
-                              type="button"
-                              className="btn btn-outline-danger btn-sm"
-                              onClick={() => handleDeleteSubcategory(subcategory.id)}
-                              disabled={isLoading}
-                              title="Удалить подкатегорию"
-                            >
-                              <FaTrash size={12} />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted py-4">
-                    <div className="mb-2">📭</div>
-                    <small>Подкатегории отсутствуют</small>
-                  </div>
-                )}
-              </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted py-4">
+                      <div className="mb-2">📭</div>
+                      <small>Подкатегории отсутствуют</small>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         ))}
@@ -583,7 +698,7 @@ const Settings = () => {
                 className={`btn tab-button ${activeTab === 'hierarchy' ? 'btn-primary' : 'btn-outline-secondary'}`}
                 onClick={() => setActiveTab('hierarchy')}
               >
-                🗂️ Иерархия категорий
+                🗂️ Иерархия
                 {hasUnsavedChanges && activeTab === 'hierarchy' && (
                   <span className="badge bg-warning text-dark ms-2">
                     *

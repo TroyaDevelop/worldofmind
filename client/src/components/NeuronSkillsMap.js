@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DEFAULT_CATEGORY } from '../services/categoryService';
 
 const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
   const canvasRef = useRef(null);
@@ -22,7 +21,7 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
     // Для обратной совместимости со старой системой категорий
     // Также обрабатываем навыки с пустой категорией как "Разное"
     return skills.filter(skill => {
-      const skillCategory = skill.category || DEFAULT_CATEGORY;
+      const skillCategory = skill.category || 'Разное';
       return skillCategory === activeCategory;
     });
   }, [skills, activeCategory]);
@@ -74,12 +73,6 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
     }));
     
     // Адаптивный размер нейронов в зависимости от количества навыков
-    const getNodeRadius = (count) => {
-      if (count <= 10) return 6; // Для малого количества навыков
-      if (count <= 30) return 5; // Для среднего количества
-      if (count <= 50) return 4; // Для большого количества
-      return 3; // Для очень большого количества
-    };
     
     // Создаем все узлы: категории, подкатегории и навыки
     const createHierarchicalNodes = () => {
@@ -88,7 +81,7 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
       // Создаем узлы категорий только если они содержат отфильтрованные навыки
       if (categories && categories.length > 0) {
         categories.filter(category => 
-          category.name && category.name.trim() !== ''
+          category.name && category.name.trim() !== '' && category.name !== 'Разное'
         ).forEach((category) => {
           // Проверяем, есть ли навыки в этой категории среди отфильтрованных
           const categoryHasSkills = filteredSkills.some(skill => skill.category_id === category.id);
@@ -112,7 +105,7 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
               y,
               vx,
               vy,
-              radius: 18, // Большой размер для категорий
+              radius: 8, // Еще меньший размер для категорий
               color: category.color || '#3498db',
               title: category.name,
               description: category.description || '',
@@ -145,7 +138,7 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
                     y,
                     vx,
                     vy,
-                    radius: 12, // Средний размер для подкатегорий
+                    radius: 5, // Еще меньший размер для подкатегорий
                     color: subcategory.color || '#2ecc71',
                     title: subcategory.name,
                     description: subcategory.description || '',
@@ -179,11 +172,11 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
           y,
           vx,
           vy,
-          radius: 8, // Увеличиваем размер для лучшей кликабельности
+          radius: 3, // Еще меньший размер для навыков
           color,
           title: skill.article,
           description: skill.description || '',
-          category: skill.category || DEFAULT_CATEGORY, // Используем "Разное" если категория пустая
+          category: skill.category || 'Разное', // Используем "Разное" если категория пустая
           data: skill,
           connections: []
         };
@@ -198,8 +191,9 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
           skillNode.connections.push(parentId);
           skillNode.parentId = parentId;
         } else if (!skill.category || skill.category.trim() === '') {
-          // Если категория пустая, присваиваем "Разное"
-          skillNode.category = DEFAULT_CATEGORY;
+                  } else if (!skill.category || skill.category.trim() === '') {
+          // Навык без категории - присваиваем "Разное"
+          skillNode.category = 'Разное';
         }
         
         allNodes.push(skillNode);

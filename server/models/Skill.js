@@ -15,6 +15,7 @@ class Skill {
           s.description,
           s.text,
           s.color,
+          s.level,
           s.image,
           s.position_x,
           s.position_y,
@@ -154,9 +155,9 @@ class Skill {
       const [result] = await db.query(`
         INSERT INTO skills (
           article, category, category_id, subcategory_id, 
-          description, text, color, image, position_x, position_y, user_id
+          description, text, color, level, image, position_x, position_y, user_id
         ) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         name || article,
         category, 
@@ -164,7 +165,8 @@ class Skill {
         subcategory_id, 
         description, 
         text, 
-        color, 
+        color,
+        skillData.level || 'in_progress', 
         image, 
         position_x || 0, 
         position_y || 0, 
@@ -204,11 +206,11 @@ class Skill {
       
       const [result] = await db.query(`
         UPDATE skills 
-        SET name = ?, article = ?, category = ?, category_id = ?, subcategory_id = ?,
+        SET article = ?, category = ?, category_id = ?, subcategory_id = ?,
             description = ?, text = ?, color = ?, level = ?, image = ?,
             updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
-      `, [skillName, skillName, category, category_id, subcategory_id, description, text, color, level, image, id]);
+      `, [skillName, category, category_id, subcategory_id, description, text, color, level || 'in_progress', image, id]);
       
       if (result.affectedRows === 0) {
         return { error: 'Ошибка обновления навыка' };
