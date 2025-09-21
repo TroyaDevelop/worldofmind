@@ -1,0 +1,313 @@
+.neuron-content .info-block-note ul,
+.neuron-content .info-block-note ol {
+  margin-left: 0;
+  padding-left: 1.5em;
+  margin-right: 0;
+  margin-top: 0.8em;
+  margin-bottom: 0.8em;
+}
+.neuron-content {
+  line-height: 1.6;
+  font-size: 1.1rem;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content > * {
+  margin: 0;
+  padding: 0;
+}
+
+.neuron-content > *:not(:last-child) {
+  margin-bottom: 1.2em;
+}
+
+.neuron-content h1,
+.neuron-content h2,
+.neuron-content h3,
+.neuron-content h4,
+.neuron-content h5,
+.neuron-content h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  font-weight: 700;
+  color: var(--text-color, #fff);
+}
+
+.neuron-content h1:first-child,
+.neuron-content h2:first-child,
+.neuron-content h3:first-child,
+.neuron-content h4:first-child,
+.neuron-content h5:first-child,
+.neuron-content h6:first-child {
+  margin-top: 0;
+}
+
+/* Уменьшаем отступ между последовательными заголовками */
+.neuron-content h1 + h1, .neuron-content h1 + h2, .neuron-content h1 + h3, .neuron-content h1 + h4, .neuron-content h1 + h5, .neuron-content h1 + h6,
+.neuron-content h2 + h1, .neuron-content h2 + h2, .neuron-content h2 + h3, .neuron-content h2 + h4, .neuron-content h2 + h5, .neuron-content h2 + h6,
+.neuron-content h3 + h1, .neuron-content h3 + h2, .neuron-content h3 + h3, .neuron-content h3 + h4, .neuron-content h3 + h5, .neuron-content h3 + h6,
+.neuron-content h4 + h1, .neuron-content h4 + h2, .neuron-content h4 + h3, .neuron-content h4 + h4, .neuron-content h4 + h5, .neuron-content h4 + h6,
+.neuron-content h5 + h1, .neuron-content h5 + h2, .neuron-content h5 + h3, .neuron-content h5 + h4, .neuron-content h5 + h5, .neuron-content h5 + h6,
+.neuron-content h6 + h1, .neuron-content h6 + h2, .neuron-content h6 + h3, .neuron-content h6 + h4, .neuron-content h6 + h5, .neuron-content h6 + h6 {
+  margin-top: 0.05em;
+}
+
+.neuron-content p {
+  margin: 0;
+  margin-bottom: 1em;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content ul,
+.neuron-content ol {
+  margin: 1em 0 1em 2em;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content li {
+  margin-bottom: 0.5em;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content strong {
+  color: var(--text-color, #fff);
+}
+
+.neuron-content blockquote {
+  border-left: 4px solid #6c757d;
+  margin: 1.5em 0;
+  padding: 1em 0 1em 1.5em;
+  background-color: rgba(108, 117, 125, 0.1);
+  font-style: italic;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content .info-block {
+  border: 2px solid #17a2b8;
+  border-radius: 8px;
+  margin: 1.5em 0;
+  padding: 1.2em;
+  background-color: rgba(23, 162, 184, 0.1);
+  position: relative;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content .info-block-info {
+  border-color: #17a2b8;
+  background-color: rgba(23, 162, 184, 0.1);
+}
+
+.neuron-content .info-block-warning {
+  border-color: #ffc107;
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.neuron-content .info-block-example {
+  border-color: #28a745;
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.neuron-content .info-block-note {
+  border-color: #6f42c1;
+  background-color: rgba(111, 66, 193, 0.1);
+}
+
+.neuron-content .info-block-info::before {
+  content: "💡 Это интересно!";
+  color: #17a2b8;
+  font-weight: bold;
+}
+
+.neuron-content .info-block-warning::before {
+  content: "⚠️ Предупреждение";
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.neuron-content .info-block-example::before {
+  content: "📝 Пример";
+  color: #28a745;
+  font-weight: bold;
+}
+
+.neuron-content .info-block-note::before {
+  content: "📌 Заметка";
+  color: #6f42c1;
+  font-weight: bold;
+}
+
+.neuron-content .info-block-simple::before {
+  content: none;
+}
+
+.neuron-content .info-block::before {
+  position: absolute;
+  top: -12px;
+  left: 15px;
+  background-color: var(--card-bg, #1e1e1e);
+  padding: 2px 8px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.neuron-content .info-block p {
+  margin-bottom: 0.8em;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content .info-block p:last-child {
+  margin-bottom: 0;
+}
+
+.neuron-content .info-block h1,
+.neuron-content .info-block h2,
+.neuron-content .info-block h3,
+.neuron-content .info-block h4,
+.neuron-content .info-block h5,
+.neuron-content .info-block h6 {
+  color: #17a2b8;
+  margin-top: 1em;
+  margin-bottom: 0.6em;
+  font-weight: 700;
+}
+
+.neuron-content .info-block h1:first-child,
+.neuron-content .info-block h2:first-child,
+.neuron-content .info-block h3:first-child,
+.neuron-content .info-block h4:first-child,
+.neuron-content .info-block h5:first-child,
+.neuron-content .info-block h6:first-child {
+  margin-top: 0;
+}
+
+.neuron-content .info-block ul,
+.neuron-content .info-block ol {
+  margin: 1em 0 1em 2em;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content .info-block strong {
+  color: #17a2b8;
+  font-weight: 700;
+}
+
+.neuron-content pre {
+  background-color: var(--code-bg, #1a1a1a);
+  border: 1px solid var(--input-border, #555);
+  border-radius: 4px;
+  padding: 1.2em;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content code {
+  background-color: var(--code-bg, #1a1a1a);
+  border: 1px solid var(--input-border, #555);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: var(--text-color, #eaeaea);
+}
+
+.neuron-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.neuron-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 1.5em 0;
+  display: block;
+}
+
+.neuron-content a {
+  color: #0ea5e9;
+  text-decoration: underline;
+}
+
+.neuron-content a:hover {
+  color: #38bdf8;
+}
+
+.neuron-content em {
+  color: #b0b0b0;
+}
+
+.neuron-content code {
+  background: #23272e;
+  color: #ffb86c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.98em;
+}
+
+.neuron-content pre {
+  background: #23272e;
+  color: #ffb86c;
+  padding: 1.2em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+/* Стили для таблиц в содержимом нейрона */
+.neuron-content table {
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  width: 100%;
+  border: 1px solid var(--input-border, #555);
+  background-color: transparent;
+  table-layout: fixed;
+}
+
+.neuron-content td,
+.neuron-content th {
+  border: 1px solid var(--input-border, #555);
+  padding: 12px 16px;
+  text-align: left;
+  background-color: transparent;
+  color: inherit;
+  position: relative;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  min-width: 80px;
+}
+
+.neuron-content th {
+  background-color: var(--card-header-bg, #444);
+  font-weight: 600;
+  color: var(--text-color, #fff);
+}
+
+.neuron-content td {
+  color: var(--text-color, #eaeaea);
+}
+
+/* Дополнительные стили для лучшего отображения таблиц */
+.neuron-content .tableWrapper {
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+/* Стили для выделенных ячеек (если используются) */
+.neuron-content .selectedCell:after {
+  background: rgba(14, 165, 233, 0.2);
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.neuron-content td.selectedCell,
+.neuron-content th.selectedCell {
+  background-color: rgba(14, 165, 233, 0.1);
+}

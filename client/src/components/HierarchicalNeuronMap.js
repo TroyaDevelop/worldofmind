@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
+const HierarchicalNeuronMap = ({ neurons, categories, activeCategory }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const navigate = useNavigate();
@@ -11,33 +11,33 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragNode, setDragNode] = useState(null);
 
-  // Фильтрация навыков в зависимости от выбранной категории
-  const filteredSkills = useMemo(() => {
-    if (activeCategory === 'all') return skills;
+  // Фильтрация нейронов в зависимости от выбранной категории
+  const filteredNeurons = useMemo(() => {
+    if (activeCategory === 'all') return neurons;
     if (activeCategory.startsWith('category_')) {
       const categoryId = parseInt(activeCategory.replace('category_', ''));
-      return skills.filter(skill => skill.category_id === categoryId);
+      return neurons.filter(neuron => neuron.category_id === categoryId);
     }
     if (activeCategory.startsWith('subcategory_')) {
       const subcategoryId = parseInt(activeCategory.replace('subcategory_', ''));
-      return skills.filter(skill => skill.subcategory_id === subcategoryId);
+      return neurons.filter(neuron => neuron.subcategory_id === subcategoryId);
     }
-    return skills.filter(skill => skill.category === activeCategory);
-  }, [skills, activeCategory]);
+    return neurons.filter(neuron => neuron.category === activeCategory);
+  }, [neurons, activeCategory]);
 
-  // Группировка навыков по категориям и подкатегориям
+  // Группировка нейронов по категориям и подкатегориям
   const groupedData = useMemo(() => {
     const groups = {
       categories: {},
       subcategories: {},
-      skills: filteredSkills
+      neurons: filteredNeurons
     };
 
     // Группируем категории
     categories.forEach(category => {
       groups.categories[category.id] = {
         ...category,
-        skills: filteredSkills.filter(skill => skill.category_id === category.id),
+        neurons: filteredNeurons.filter(neuron => neuron.category_id === category.id),
         subcategories: category.subcategories || []
       };
     });
@@ -47,14 +47,14 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
       (category.subcategories || []).forEach(subcategory => {
         groups.subcategories[subcategory.id] = {
           ...subcategory,
-          skills: filteredSkills.filter(skill => skill.subcategory_id === subcategory.id),
+          neurons: filteredNeurons.filter(neuron => neuron.subcategory_id === subcategory.id),
           category: category
         };
       });
     });
 
     return groups;
-  }, [filteredSkills, categories]);
+  }, [filteredNeurons, categories]);
 
   // Расчет позиций для иерархической структуры
   const calculateHierarchicalPositions = (canvas) => {
@@ -63,7 +63,7 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
     const centerY = canvas.height / 2;
     const categoryRadius = Math.min(canvas.width, canvas.height) * 0.3;
     const subcategoryRadius = categoryRadius * 0.6;
-    const skillRadius = subcategoryRadius * 0.4;
+    const neuronRadius = subcategoryRadius * 0.4;
 
     // Создаем узлы категорий по кругу
     const categoryNodes = Object.values(groupedData.categories).map((category, index) => {
@@ -116,42 +116,42 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
       }
     });
 
-    // Создаем узлы навыков вокруг подкатегорий или категорий
-    const skillNodes = filteredSkills.map(skill => {
+    // Создаем узлы нейронов вокруг подкатегорий или категорий
+    const neuronNodes = filteredNeurons.map(neuron => {
       let parentNode = null;
       
-      if (skill.subcategory_id) {
-        parentNode = subcategoryNodes.find(node => node.data.id === skill.subcategory_id);
-      } else if (skill.category_id) {
-        parentNode = categoryNodes.find(node => node.data.id === skill.category_id);
+      if (neuron.subcategory_id) {
+        parentNode = subcategoryNodes.find(node => node.data.id === neuron.subcategory_id);
+      } else if (neuron.category_id) {
+        parentNode = categoryNodes.find(node => node.data.id === neuron.category_id);
       }
       
       let x, y;
       if (parentNode) {
-        const skillsForParent = filteredSkills.filter(s => 
-          s.subcategory_id === skill.subcategory_id && s.category_id === skill.category_id
+        const neuronsForParent = filteredNeurons.filter(s => 
+          s.subcategory_id === neuron.subcategory_id && s.category_id === neuron.category_id
         );
-        const index = skillsForParent.findIndex(s => s.id === skill.id);
-        const angle = (index / skillsForParent.length) * 2 * Math.PI;
+        const index = neuronsForParent.findIndex(s => s.id === neuron.id);
+        const angle = (index / neuronsForParent.length) * 2 * Math.PI;
         
-        x = parentNode.x + Math.cos(angle) * skillRadius;
-        y = parentNode.y + Math.sin(angle) * skillRadius;
+        x = parentNode.x + Math.cos(angle) * neuronRadius;
+        y = parentNode.y + Math.sin(angle) * neuronRadius;
       } else {
-        // Случайное размещение для навыков без категории
+        // Случайное размещение для нейронов без категории
         x = Math.random() * canvas.width;
         y = Math.random() * canvas.height;
       }
       
       const node = {
-        id: `skill_${skill.id}`,
-        type: 'skill',
-        x: skill.position_x || x,
-        y: skill.position_y || y,
+        id: `neuron_${neuron.id}`,
+        type: 'neuron',
+        x: neuron.position_x || x,
+        y: neuron.position_y || y,
         radius: 8,
-        color: skill.color || '#e74c3c',
-        title: skill.article,
-        description: skill.description || '',
-        data: skill,
+        color: neuron.color || '#e74c3c',
+        title: neuron.article,
+        description: neuron.description || '',
+        data: neuron,
         connections: parentNode ? [parentNode.id] : []
       };
       
@@ -162,7 +162,7 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
       return node;
     });
 
-    return [...categoryNodes, ...subcategoryNodes, ...skillNodes];
+    return [...categoryNodes, ...subcategoryNodes, ...neuronNodes];
   };
 
   // Инициализация анимации
@@ -258,8 +258,8 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
         return dist <= node.radius;
       });
       
-      if (clickedNode && clickedNode.type === 'skill') {
-        navigate(`/skill/${clickedNode.data.id}`);
+      if (clickedNode && clickedNode.type === 'neuron') {
+        navigate(`/neuron/${clickedNode.data.id}`);
       }
     };
 
@@ -345,7 +345,7 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
       } else if (node.type === 'subcategory') {
         drawSubcategoryIcon(ctx, node);
       } else {
-        drawSkillIcon(ctx, node);
+        drawNeuronIcon(ctx, node);
       }
     });
   };
@@ -368,8 +368,8 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
     ctx.fillText('📂', node.x, node.y);
   };
 
-  // Функция отрисовки иконки навыка
-  const drawSkillIcon = (ctx, node) => {
+  // Функция отрисовки иконки нейрона
+  const drawNeuronIcon = (ctx, node) => {
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 8px Arial';
     ctx.textAlign = 'center';
@@ -405,7 +405,7 @@ const HierarchicalNeuronMap = ({ skills, categories, activeCategory }) => {
         ${node.description ? `<div style="margin-top: 4px; opacity: 0.8;">${node.description}</div>` : ''}
         <div style="margin-top: 4px; opacity: 0.6; font-size: 10px;">
           ${node.type === 'category' ? 'Категория' : 
-            node.type === 'subcategory' ? 'Подкатегория' : 'Навык'}
+            node.type === 'subcategory' ? 'Подкатегория' : 'Нейрон'}
         </div>
       `;
       

@@ -7,7 +7,7 @@ class Category {
       const [rows] = await db.query(`
         SELECT 
           c.*,
-          COUNT(s.id) as skills_count
+          COUNT(s.id) as neurons_count
         FROM categories c
         LEFT JOIN skills s ON c.id = s.category_id
         WHERE c.name IS NOT NULL 
@@ -27,7 +27,7 @@ class Category {
   static async getById(id) {
     try {
       const [rows] = await db.query(`
-        SELECT c.*, COUNT(s.id) as skills_count
+        SELECT c.*, COUNT(s.id) as neurons_count
         FROM categories c
         LEFT JOIN skills s ON c.id = s.category_id
         WHERE c.id = ?
@@ -104,7 +104,7 @@ class Category {
       const [rows] = await db.query(`
         SELECT 
           sc.*,
-          COUNT(s.id) as skills_count
+          COUNT(s.id) as neurons_count
         FROM subcategories sc
         LEFT JOIN skills s ON sc.id = s.subcategory_id
         WHERE sc.category_id = ?

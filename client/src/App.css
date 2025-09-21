@@ -449,7 +449,7 @@ body {
 }
 
 /* Специальные стили для карточек навыков в списке */
-.skills-container .card {
+.neurons-container .card {
   background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255,255,255,0.02) 100%);
   border-radius: 16px;
   box-shadow: 
@@ -465,7 +465,7 @@ body {
   min-height: 140px;
 }
 
-.skills-container .card:hover {
+.neurons-container .card:hover {
   transform: translateY(-8px) scale(1.03);
   box-shadow: 
     0 16px 50px rgba(0, 0, 0, 0.2),
@@ -474,7 +474,7 @@ body {
   z-index: 10;
 }
 
-.skills-container .card-body {
+.neurons-container .card-body {
   padding: 20px 24px;
   position: relative;
   height: 100%;
@@ -483,11 +483,11 @@ body {
   transition: all 0.4s ease;
 }
 
-.skills-container .card:hover .card-body {
+.neurons-container .card:hover .card-body {
   padding: 24px 28px;
 }
 
-.skills-container .card-title {
+.neurons-container .card-title {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 8px;
@@ -497,33 +497,33 @@ body {
   transition: all 0.3s ease;
 }
 
-.skills-container .card:hover .card-title {
+.neurons-container .card:hover .card-title {
   font-size: 1.15rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   color: var(--text-color);
 }
 
 /* Переопределяем цвет ссылок внутри карточек навыков */
-.skills-container a {
+.neurons-container a {
   color: inherit;
   text-decoration: none;
 }
 
-.skills-container a:hover {
+.neurons-container a:hover {
   color: inherit;
   text-decoration: none;
 }
 
-.skills-container a .card-title {
+.neurons-container a .card-title {
   color: var(--text-color);
   transition: color 0.3s ease;
 }
 
-.skills-container a:hover .card-title {
+.neurons-container a:hover .card-title {
   color: var(--text-color);
 }
 
-.skills-container .card-text {
+.neurons-container .card-text {
   font-size: 0.9rem;
   line-height: 1.4;
   color: var(--text-muted);
@@ -536,7 +536,7 @@ body {
 }
 
 /* Обрезка текста в обычном состоянии */
-.skills-container .card-text::before {
+.neurons-container .card-text::before {
   content: '';
   position: absolute;
   bottom: 0;
@@ -549,7 +549,7 @@ body {
 }
 
 /* Полное отображение текста при наведении */
-.skills-container .card:hover .card-text {
+.neurons-container .card:hover .card-text {
   max-height: none;
   display: block;
   -webkit-line-clamp: unset;
@@ -558,7 +558,7 @@ body {
   animation: expandText 0.4s ease-out;
 }
 
-.skills-container .card:hover .card-text::before {
+.neurons-container .card:hover .card-text::before {
   opacity: 0;
 }
 
@@ -575,42 +575,42 @@ body {
 }
 
 /* Добавляем эффект свечения при наведении */
-.skills-container .card:hover .card-text {
+.neurons-container .card:hover .card-text {
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
 }
 
-.skills-container a .card-text {
+.neurons-container a .card-text {
   color: var(--text-muted);
 }
 
-.skills-container a:hover .card-text {
+.neurons-container a:hover .card-text {
   color: var(--text-muted);
 }
 
 /* Цветная полоска слева */
-.skills-container .card {
+.neurons-container .card {
   position: relative;
 }
 
-.skills-container .card::before {
+.neurons-container .card::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
   width: 4px;
   height: 100%;
-  background: linear-gradient(180deg, var(--skill-color, #3498db) 0%, rgba(255,255,255,0.1) 100%);
+  background: linear-gradient(180deg, var(--neuron-color, #3498db) 0%, rgba(255,255,255,0.1) 100%);
   transition: all 0.4s ease;
 }
 
-.skills-container .card:hover::before {
+.neurons-container .card:hover::before {
   width: 8px;
-  background: linear-gradient(180deg, var(--skill-color, #3498db) 0%, var(--skill-color, #3498db) 70%, rgba(255,255,255,0.2) 100%);
-  box-shadow: 0 0 15px rgba(var(--skill-color-rgb, 52, 152, 219), 0.4);
+  background: linear-gradient(180deg, var(--neuron-color, #3498db) 0%, var(--neuron-color, #3498db) 70%, rgba(255,255,255,0.2) 100%);
+  box-shadow: 0 0 15px rgba(var(--neuron-color-rgb, 52, 152, 219), 0.4);
 }
 
 /* Индикатор статуса навыка */
-.skills-container .card-body::after {
+.neurons-container .card-body::after {
   content: '';
   position: absolute;
   top: 16px;
@@ -618,18 +618,18 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--skill-color, #3498db);
+  background: var(--neuron-color, #3498db);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
   opacity: 0.7;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.skills-container .card:hover .card-body::after {
+.neurons-container .card:hover .card-body::after {
   opacity: 1;
   transform: scale(1.4);
   box-shadow: 
     0 0 20px rgba(255, 255, 255, 0.6),
-    0 0 40px rgba(var(--skill-color-rgb, 52, 152, 219), 0.3);
+    0 0 40px rgba(var(--neuron-color-rgb, 52, 152, 219), 0.3);
   animation: pulse 2s infinite;
 }
 
@@ -975,28 +975,28 @@ body {
 
 /* Компактный режим для карточек навыков */
 @media (min-width: 1400px) {
-  .skills-container .row {
+  .neurons-container .row {
     gap: 1rem;
   }
   
-  .skills-container .card-body {
+  .neurons-container .card-body {
     padding: 16px 20px;
   }
   
-  .skills-container .card:hover .card-body {
+  .neurons-container .card:hover .card-body {
     padding: 20px 24px;
   }
   
-  .skills-container .card-title {
+  .neurons-container .card-title {
     font-size: 1rem;
     margin-bottom: 6px;
   }
   
-  .skills-container .card:hover .card-title {
+  .neurons-container .card:hover .card-title {
     font-size: 1.1rem;
   }
   
-  .skills-container .card-text {
+  .neurons-container .card-text {
     font-size: 0.85rem;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -1005,36 +1005,36 @@ body {
 
 /* Мобильная адаптация */
 @media (max-width: 768px) {
-  .skills-container .card:hover {
+  .neurons-container .card:hover {
     transform: translateY(-4px) scale(1.01);
   }
   
-  .skills-container .card-text {
+  .neurons-container .card-text {
     max-height: 4.2em; /* Больше места для текста на мобильных */
   }
   
-  .skills-container .card:hover .card-text {
+  .neurons-container .card:hover .card-text {
     animation: none; /* Отключаем сложную анимацию на мобильных */
   }
   
-  .skills-container .card-body::after {
+  .neurons-container .card-body::after {
     width: 10px;
     height: 10px;
     top: 12px;
     right: 12px;
   }
   
-  .skills-container .card:hover .card-body::after {
+  .neurons-container .card:hover .card-body::after {
     transform: scale(1.2);
   }
 }
 
 /* Темная тема - улучшенные эффекты */
-.dark-mode .skills-container .card {
+.dark-mode .neurons-container .card {
   background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255,255,255,0.03) 100%);
 }
 
-.dark-mode .skills-container .card:hover {
+.dark-mode .neurons-container .card:hover {
   box-shadow: 
     0 20px 60px rgba(0, 0, 0, 0.4),
     0 10px 30px rgba(0, 0, 0, 0.3);

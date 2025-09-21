@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getAllSkills, getCategories } from '../services/skillService';
+import { getAllNeurons, getCategories } from '../services/neuronService';
 import { getCategoriesHierarchy } from '../services/categoryService';
 import { useSearch } from '../context/SearchContext';
 import { FaPlus, FaSearch, FaBrain, FaList, FaFilter } from 'react-icons/fa';
-import NeuronSkillsMap from '../components/NeuronSkillsMap';
+import NeuronMap from '../components/NeuronMap';
 
 const Home = () => {
   const { searchQuery, isSearchActive } = useSearch();
-  const [skills, setSkills] = useState([]);
+  const [neurons, setNeurons] = useState([]);
   const [categories, setCategories] = useState([]);
   const [hierarchicalCategories, setHierarchicalCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,21 +17,21 @@ const Home = () => {
   const [viewMode, setViewMode] = useState('neuron'); // 'neuron' или 'list'
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Загрузка навыков и категорий при монтировании компонента
+  // Загрузка нейронов и категорий при монтировании компонента
   useEffect(() => {
     const fetchData = async () => {
       try {
         console.log('Загружаем данные...');
-        const [skillsData, categoriesData, hierarchicalCategoriesData] = await Promise.all([
-          getAllSkills(),
+        const [neuronsData, categoriesData, hierarchicalCategoriesData] = await Promise.all([
+          getAllNeurons(),
           getCategories(),
           getCategoriesHierarchy()
         ]);
-        console.log('skillsData:', skillsData);
+        console.log('neuronsData:', neuronsData);
         console.log('categoriesData:', categoriesData);
         console.log('hierarchicalCategoriesData:', hierarchicalCategoriesData);
         
-        setSkills(skillsData || []);
+        setNeurons(neuronsData || []);
         setCategories(categoriesData || []);
         setHierarchicalCategories(hierarchicalCategoriesData || []);
       } catch (err) {
@@ -50,14 +50,14 @@ const Home = () => {
     const handleFocus = async () => {
       try {
         console.log('Обновляем данные при фокусе...');
-        const [skillsData, categoriesData, hierarchicalCategoriesData] = await Promise.all([
-          getAllSkills(),
+        const [neuronsData, categoriesData, hierarchicalCategoriesData] = await Promise.all([
+          getAllNeurons(),
           getCategories(),
           getCategoriesHierarchy()
         ]);
         console.log('Обновленные данные - hierarchicalCategoriesData:', hierarchicalCategoriesData);
         
-        setSkills(skillsData || []);
+        setNeurons(neuronsData || []);
         setCategories(categoriesData || []);
         setHierarchicalCategories(hierarchicalCategoriesData || []);
       } catch (err) {
@@ -85,19 +85,19 @@ const Home = () => {
     return () => document.removeEventListener('click', closeDropdown);
   }, [isDropdownOpen]);
 
-  // Функция для отображения навыков выбранной категории или всех навыков с учетом поиска
-  const getFilteredSkills = () => {
-    let filteredSkills = skills;
+  // Функция для отображения нейронов выбранной категории или всех нейронов с учетом поиска
+  const getFilteredNeurons = () => {
+    let filteredNeurons = neurons;
 
     // Фильтрация по категории
     if (activeCategory !== 'all') {
       if (activeCategory.startsWith('category_')) {
         // Новая иерархическая система - фильтруем по category_id
         const categoryId = parseInt(activeCategory.replace('category_', ''));
-        filteredSkills = filteredSkills.filter(skill => skill.category_id === categoryId);
+        filteredNeurons = filteredNeurons.filter(neuron => neuron.category_id === categoryId);
       } else {
         // Старая система - фильтруем по текстовому полю category
-        filteredSkills = filteredSkills.filter(skill => skill.category === activeCategory);
+        filteredNeurons = filteredNeurons.filter(neuron => neuron.category === activeCategory);
       }
     }
 
@@ -105,30 +105,30 @@ const Home = () => {
     if (isSearchActive && searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       
-      filteredSkills = filteredSkills.filter(skill => {
-        const matchesArticle = skill.article && skill.article.toLowerCase().includes(query);
-        const matchesCategory = skill.category && skill.category.toLowerCase().includes(query);
-        const matchesDescription = skill.description && skill.description.toLowerCase().includes(query);
-        const matchesText = skill.text && skill.text.toLowerCase().includes(query); // Используем text вместо content
+      filteredNeurons = filteredNeurons.filter(neuron => {
+        const matchesArticle = neuron.article && neuron.article.toLowerCase().includes(query);
+        const matchesCategory = neuron.category && neuron.category.toLowerCase().includes(query);
+        const matchesDescription = neuron.description && neuron.description.toLowerCase().includes(query);
+        const matchesText = neuron.text && neuron.text.toLowerCase().includes(query); // Используем text вместо content
         
         return matchesArticle || matchesCategory || matchesDescription || matchesText;
       });
     }
 
-    return filteredSkills;
+    return filteredNeurons;
   };
 
-  // Группирование навыков по категориям для отображения
-  const groupSkillsByCategory = () => {
-    const groupedSkills = {};
+  // Группирование нейронов по категориям для отображения
+  const groupNeuronsByCategory = () => {
+    const groupedNeurons = {};
     
-    getFilteredSkills().forEach(skill => {
+    getFilteredNeurons().forEach(neuron => {
       // Определяем название категории для группировки
-      let categoryName = skill.category; // Старая система
+      let categoryName = neuron.category; // Старая система
       
-      // Если у навыка есть category_id, ищем название в hierarchicalCategories
-      if (skill.category_id && hierarchicalCategories.length > 0) {
-        const category = hierarchicalCategories.find(cat => cat.id === skill.category_id);
+      // Если у нейрона есть category_id, ищем название в hierarchicalCategories
+      if (neuron.category_id && hierarchicalCategories.length > 0) {
+        const category = hierarchicalCategories.find(cat => cat.id === neuron.category_id);
         if (category) {
           categoryName = category.name;
         }
@@ -139,14 +139,14 @@ const Home = () => {
         categoryName = 'Разное';
       }
       
-      if (!groupedSkills[categoryName]) {
-        groupedSkills[categoryName] = [];
+      if (!groupedNeurons[categoryName]) {
+        groupedNeurons[categoryName] = [];
       }
       
-      groupedSkills[categoryName].push(skill);
+      groupedNeurons[categoryName].push(neuron);
     });
     
-    return groupedSkills;
+    return groupedNeurons;
   };
 
   // Функция для отображения текущей выбранной категории
@@ -179,7 +179,7 @@ const Home = () => {
           <div className="spinner-border" role="status">
             <span className="visually-hidden">Загрузка...</span>
           </div>
-          <p>Загружаем ваши навыки...</p>
+          <p>Загружаем ваши нейрони...</p>
         </div>
       </div>
     );
@@ -202,21 +202,21 @@ const Home = () => {
     );
   }
 
-  const groupedSkills = groupSkillsByCategory();
+  const groupedNeurons = groupNeuronsByCategory();
 
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h1>Мои навыки</h1>
+          <h1>Мои нейроны</h1>
           {isSearchActive && (
             <div className="text-muted">
-              <small>Поиск: "{searchQuery}" ({getFilteredSkills().length} результатов)</small>
+              <small>Поиск: "{searchQuery}" ({getFilteredNeurons().length} результатов)</small>
             </div>
           )}
         </div>
-        <Link to="/add-skill" className="btn btn-primary">
-          <FaPlus className="me-2" /> Добавить навык
+        <Link to="/add-neuron" className="btn btn-primary">
+          <FaPlus className="me-2" /> Добавить нейрон
         </Link>
       </div>
 
@@ -303,65 +303,55 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Если навыков нет */}
-      {skills.length === 0 && !isSearchActive && (
+      {/* Если нейронов нет */}
+      {neurons.length === 0 && !isSearchActive && (
         <div className="text-center py-5">
           <div className="mb-4">
             <FaSearch size={48} className="text-muted" />
           </div>
-          <h3>У вас пока нет навыков</h3>
-          <p className="text-muted">Начните добавлять свои знания и навыки прямо сейчас!</p>
-          <Link to="/add-skill" className="btn btn-lg btn-primary">
-            <FaPlus className="me-2" /> Добавить первый навык
+          <h3>У вас пока нет нейронов</h3>
+          <p className="text-muted">Начните добавлять свои знания и нейрони прямо сейчас!</p>
+          <Link to="/add-neuron" className="btn btn-lg btn-primary">
+            <FaPlus className="me-2" /> Добавить первый нейрон
           </Link>
         </div>
       )}
 
-      {/* Если ничего не найдено по поиску */}
-      {skills.length > 0 && isSearchActive && getFilteredSkills().length === 0 && (
-        <div className="text-center py-5">
-          <div className="mb-4">
-            <FaSearch size={48} className="text-muted" />
-          </div>
-          <h3>Ничего не найдено</h3>
-          <p className="text-muted">По запросу "{searchQuery}" ничего не найдено. Попробуйте изменить поисковый запрос.</p>
-        </div>
-      )}
-
-      {/* Нейронная визуализация навыков с иерархией */}
-      {skills.length > 0 && viewMode === 'neuron' && (
-        <NeuronSkillsMap 
-          skills={getFilteredSkills()} 
+      {/* Нейронная визуализация нейронов с иерархией */}
+      {neurons.length > 0 && viewMode === 'neuron' && (
+        <NeuronMap 
+          neurons={getFilteredNeurons()} 
           categories={hierarchicalCategories}
-          activeCategory={activeCategory} 
+          activeCategory={activeCategory}
+          isSearchActive={isSearchActive}
         />
       )}
 
-      {/* Отображение навыков по категориям в формате списка */}
-      {skills.length > 0 && viewMode === 'list' && getFilteredSkills().length > 0 && (
-        <div className="skills-container">
-          {Object.keys(groupedSkills).sort().map(category => (
+      {/* Отображение нейронов по категориям в формате списка */}
+      {neurons.length > 0 && viewMode === 'list' && getFilteredNeurons().length > 0 && (
+        <div className="neurons-container">
+          {Object.keys(groupedNeurons).sort().map(category => (
             <div key={category} className="category-section mb-4">
               <h2 className="category-title">{category}</h2>
               <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
-                {groupedSkills[category].map(skill => {
-                  const skillColor = skill.color || '#3498db';
-                  const rgbColor = hexToRgb(skillColor);
+                {groupedNeurons[category].map(neuron => {
+                  const neuronColor = neuron.color || '#3498db';
+                  const rgbColor = hexToRgb(neuronColor);
                   
                   return (
-                    <div key={skill.id} className="col">
-                      <Link to={`/skills/${skill.id}`} className="text-decoration-none">
+                    <div key={neuron.id} className="col">
+                      <Link to={`/neurons/${neuron.id}`} className="text-decoration-none">
                         <div 
                           className="card h-100" 
                           style={{ 
-                            borderLeft: `4px solid ${skillColor}`,
-                            '--skill-color': skillColor,
-                            '--skill-color-rgb': `${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}`
+                            borderLeft: `4px solid ${neuronColor}`,
+                            '--neuron-color': neuronColor,
+                            '--neuron-color-rgb': `${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}`
                           }}
                         >
                           <div className="card-body">
-                            <h5 className="card-title">{skill.article}</h5>
-                            <p className="card-text text-muted">{skill.description || 'Без описания'}</p>
+                            <h5 className="card-title">{neuron.article}</h5>
+                            <p className="card-text text-muted">{neuron.description || 'Без описания'}</p>
                           </div>
                         </div>
                       </Link>
@@ -374,10 +364,10 @@ const Home = () => {
         </div>
       )}
       
-      {/* Если навыки есть, но не соответствуют выбранной категории */}
-      {skills.length > 0 && !isSearchActive && getFilteredSkills().length === 0 && activeCategory !== 'all' && (
+      {/* Если нейрони есть, но не соответствуют выбранной категории */}
+      {neurons.length > 0 && !isSearchActive && getFilteredNeurons().length === 0 && activeCategory !== 'all' && (
         <div className="alert alert-info">
-          В выбранной категории "{activeCategory}" навыков не найдено.
+          В выбранной категории "{activeCategory}" нейронов не найдено.
         </div>
       )}
     </div>

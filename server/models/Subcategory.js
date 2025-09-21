@@ -9,7 +9,7 @@ class Subcategory {
           sc.*,
           c.name as category_name,
           c.color as category_color,
-          COUNT(s.id) as skills_count
+          COUNT(s.id) as neurons_count
         FROM subcategories sc
         JOIN categories c ON sc.category_id = c.id
         LEFT JOIN skills s ON sc.id = s.subcategory_id
@@ -31,7 +31,7 @@ class Subcategory {
           sc.*,
           c.name as category_name,
           c.color as category_color,
-          COUNT(s.id) as skills_count
+          COUNT(s.id) as neurons_count
         FROM subcategories sc
         JOIN categories c ON sc.category_id = c.id
         LEFT JOIN skills s ON sc.id = s.subcategory_id
@@ -51,7 +51,7 @@ class Subcategory {
       const [rows] = await db.query(`
         SELECT 
           sc.*,
-          COUNT(s.id) as skills_count
+          COUNT(s.id) as neurons_count
         FROM subcategories sc
         LEFT JOIN skills s ON sc.id = s.subcategory_id
         WHERE sc.category_id = ?

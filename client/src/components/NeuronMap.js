@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
+const NeuronNeuronsMap = ({ neurons, categories, activeCategory, isSearchActive }) => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const navigate = useNavigate();
@@ -9,33 +9,33 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
   const nodesRef = useRef([]);
   const tooltipRef = useRef(null);
 
-  // Фильтрация навыков в зависимости от выбранной категории
-  const filteredSkills = useMemo(() => {
-    if (activeCategory === 'all') return skills;
+  // Фильтрация нейронов в зависимости от выбранной категории
+  const filteredNeurons = useMemo(() => {
+    if (activeCategory === 'all') return neurons;
     
     if (activeCategory.startsWith('category_')) {
       const categoryId = parseInt(activeCategory.replace('category_', ''));
-      return skills.filter(skill => skill.category_id === categoryId);
+      return neurons.filter(neuron => neuron.category_id === categoryId);
     }
     
     // Для обратной совместимости со старой системой категорий
-    // Также обрабатываем навыки с пустой категорией как "Разное"
-    return skills.filter(skill => {
-      const skillCategory = skill.category || 'Разное';
-      return skillCategory === activeCategory;
+    // Также обрабатываем нейрони с пустой категорией как "Разное"
+    return neurons.filter(neuron => {
+      const neuronCategory = neuron.category || 'Разное';
+      return neuronCategory === activeCategory;
     });
-  }, [skills, activeCategory]);
+  }, [neurons, activeCategory]);
 
   // Инициализация анимации
   useEffect(() => {
     // Отладочная информация
-    console.log('NeuronSkillsMap: categories received:', categories);
-    console.log('NeuronSkillsMap: filteredSkills:', filteredSkills);
+    console.log('NeuronNeuronsMap: categories received:', categories);
+    console.log('NeuronNeuronsMap: filteredNeurons:', filteredNeurons);
     
     if (!canvasRef.current || !containerRef.current) return;
     
-    // Если нет навыков и нет категорий, не отображаем ничего
-    if (!filteredSkills.length && (!categories || !categories.length)) return;
+    // Если нет нейронов и нет категорий, не отображаем ничего
+    if (!filteredNeurons.length && (!categories || !categories.length)) return;
 
     // Удаляем существующий tooltip, если он есть
     if (tooltipRef.current) {
@@ -72,27 +72,27 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
       alpha: getRandomNumber(0.4, 0.9)
     }));
     
-    // Адаптивный размер нейронов в зависимости от количества навыков
+    // Адаптивный размер нейронов в зависимости от количества нейронов
     
-    // Создаем все узлы: категории, подкатегории и навыки
+    // Создаем все узлы: категории, подкатегории и нейрони
     const createHierarchicalNodes = () => {
       const allNodes = [];
       
-      // Создаем узлы категорий только если они содержат отфильтрованные навыки
+      // Создаем узлы категорий только если они содержат отфильтрованные нейрони
       if (categories && categories.length > 0) {
         categories.filter(category => 
           category.name && category.name.trim() !== '' && category.name !== 'Разное'
         ).forEach((category) => {
-          // Проверяем, есть ли навыки в этой категории среди отфильтрованных
-          const categoryHasSkills = filteredSkills.some(skill => skill.category_id === category.id);
-          const showAllCategories = activeCategory === 'all';
+          // Проверяем, есть ли нейрони в этой категории среди отфильтрованных
+          const categoryHasNeurons = filteredNeurons.some(neuron => neuron.category_id === category.id);
+          const showAllCategories = activeCategory === 'all' && !isSearchActive; // При поиске не показываем пустые категории
           const isSelectedCategory = activeCategory === `category_${category.id}`;
           
           // Показываем категорию если:
-          // 1. В ней есть навыки
-          // 2. Выбраны все категории (показываем все, даже пустые)
+          // 1. В ней есть нейроны
+          // 2. Выбраны все категории И НЕ активен поиск (показываем все, даже пустые)
           // 3. Эта категория выбрана конкретно
-          if (categoryHasSkills || showAllCategories || isSelectedCategory) {
+          if (categoryHasNeurons || showAllCategories || isSelectedCategory) {
             const x = getRandomNumber(canvas.width * 0.1, canvas.width * 0.9);
             const y = getRandomNumber(canvas.height * 0.1, canvas.height * 0.9);
             const vx = getRandomNumber(-0.05, 0.05);
@@ -114,18 +114,18 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
               connections: []
             });
             
-            // Создаем узлы подкатегорий только если они содержат отфильтрованные навыки
+            // Создаем узлы подкатегорий только если они содержат отфильтрованные нейрони
             if (category.subcategories && category.subcategories.length > 0) {
               category.subcategories.filter(subcategory =>
                 subcategory.name && subcategory.name.trim() !== ''
               ).forEach((subcategory) => {
-                const subcategoryHasSkills = filteredSkills.some(skill => skill.subcategory_id === subcategory.id);
+                const subcategoryHasNeurons = filteredNeurons.some(neuron => neuron.subcategory_id === subcategory.id);
                 
                 // Показываем подкатегорию если:
-                // 1. В ней есть навыки
-                // 2. Выбраны все категории (показываем все, даже пустые)
+                // 1. В ней есть нейроны
+                // 2. Выбраны все категории И НЕ активен поиск (показываем все, даже пустые)
                 // 3. Выбрана родительская категория этой подкатегории
-                if (subcategoryHasSkills || showAllCategories || isSelectedCategory) {
+                if (subcategoryHasNeurons || showAllCategories || isSelectedCategory) {
                   const x = getRandomNumber(canvas.width * 0.1, canvas.width * 0.9);
                   const y = getRandomNumber(canvas.height * 0.1, canvas.height * 0.9);
                   const vx = getRandomNumber(-0.06, 0.06);
@@ -153,50 +153,49 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
           }
         });
       } else {
-        // No categories provided, creating skills only
+        // No categories provided, creating neurons only
       }
       
-      // Создаем узлы навыков
-      filteredSkills.forEach((skill) => {
+      // Создаем узлы нейронов
+      filteredNeurons.forEach((neuron) => {
         const x = getRandomNumber(canvas.width * 0.04, canvas.width * 0.96);
         const y = getRandomNumber(canvas.height * 0.04, canvas.height * 0.96);
         const vx = getRandomNumber(-0.08, 0.08);
         const vy = getRandomNumber(-0.08, 0.08);
         
-        const color = skill.color || `hsl(${getRandomNumber(0, 360)}, 70%, 60%)`;
+        const color = neuron.color || `hsl(${getRandomNumber(0, 360)}, 70%, 60%)`;
         
-        const skillNode = {
-          id: `skill_${skill.id}`,
-          type: 'skill',
+        const neuronNode = {
+          id: `neuron_${neuron.id}`,
+          type: 'neuron',
           x,
           y,
           vx,
           vy,
-          radius: 3, // Еще меньший размер для навыков
+          radius: 3, // Еще меньший размер для нейронов
           color,
-          title: skill.article,
-          description: skill.description || '',
-          category: skill.category || 'Разное', // Используем "Разное" если категория пустая
-          data: skill,
+          title: neuron.article,
+          description: neuron.description || '',
+          category: neuron.category || 'Разное', // Используем "Разное" если категория пустая
+          data: neuron,
           connections: []
         };
         
-        // Связываем навык с подкатегорией или категорией
-        if (skill.subcategory_id) {
-          const parentId = `subcategory_${skill.subcategory_id}`;
-          skillNode.connections.push(parentId);
-          skillNode.parentId = parentId;
-        } else if (skill.category_id) {
-          const parentId = `category_${skill.category_id}`;
-          skillNode.connections.push(parentId);
-          skillNode.parentId = parentId;
-        } else if (!skill.category || skill.category.trim() === '') {
-                  } else if (!skill.category || skill.category.trim() === '') {
-          // Навык без категории - присваиваем "Разное"
-          skillNode.category = 'Разное';
+        // Связываем нейрон с подкатегорией или категорией
+        if (neuron.subcategory_id) {
+          const parentId = `subcategory_${neuron.subcategory_id}`;
+          neuronNode.connections.push(parentId);
+          neuronNode.parentId = parentId;
+        } else if (neuron.category_id) {
+          const parentId = `category_${neuron.category_id}`;
+          neuronNode.connections.push(parentId);
+          neuronNode.parentId = parentId;
+        } else if (!neuron.category || neuron.category.trim() === '') {
+          // Нейрон без категории - присваиваем "Разное"
+          neuronNode.category = 'Разное';
         }
         
-        allNodes.push(skillNode);
+        allNodes.push(neuronNode);
       });
       
       // Добавляем обратные связи от родителей к детям
@@ -488,7 +487,7 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
         // Добавляем информацию о типе узла
         const nodeTypeText = hoveredNode.type === 'category' ? '📁 Категория' : 
                            hoveredNode.type === 'subcategory' ? '📂 Подкатегория' : 
-                           '⚡ Навык';
+                           '⚡ Нейрон';
         
         if (hoveredNode.description) {
           descriptionText = `${nodeTypeText}\n${hoveredNode.description}`;
@@ -537,20 +536,20 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
       const y = event.clientY - rect.top;
       
       // Проверяем, попал ли клик в какой-либо узел
-      // Увеличиваем множитель для лучшего обнаружения, особенно для маленьких навыков
+      // Увеличиваем множитель для лучшего обнаружения, особенно для маленьких нейронов
       const detectionMultiplier = 3;
       
       for (let node of nodes) {
         const distance = Math.sqrt(Math.pow(node.x - x, 2) + Math.pow(node.y - y, 2));
         if (distance <= node.radius * detectionMultiplier) {
-          // Переходим только к навыкам, игнорируем категории и подкатегории
-          if (node.type === 'skill') {
-            navigate(`/skills/${node.data.id}`);
+          // Переходим только к нейронам, игнорируем категории и подкатегории
+          if (node.type === 'neuron') {
+            navigate(`/neurons/${node.data.id}`);
           } else if (node.type === 'category' || node.type === 'subcategory') {
             // Клик по категории/подкатегории - можно добавить фильтрацию в будущем
           } else {
-            // Это старый формат узла (без type), значит это навык
-            navigate(`/skills/${node.id}`);
+            // Это старый формат узла (без type), значит это нейрон
+            navigate(`/neurons/${node.id}`);
           }
           break;
         }
@@ -577,19 +576,19 @@ const NeuronSkillsMap = ({ skills, categories, activeCategory }) => {
         tooltipRef.current = null;
       }
     };
-  }, [filteredSkills, categories, activeCategory, navigate]);
+  }, [filteredNeurons, categories, activeCategory, isSearchActive, navigate]);
 
   return (
     <div className="neuron-map-container" ref={containerRef}>
       <canvas ref={canvasRef} className="neuron-map-canvas"></canvas>
       
-      {!filteredSkills.length && (!categories || !categories.length) && (
-        <div className="no-skills-message">
-          <p>Нет навыков и категорий для отображения</p>
+      {!filteredNeurons.length && (!categories || !categories.length) && (
+        <div className="no-neurons-message">
+          <p>Нет нейронов и категорий для отображения</p>
         </div>
       )}
     </div>
   );
 };
 
-export default NeuronSkillsMap;
+export default NeuronNeuronsMap;

@@ -3,12 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { FaArrowLeft, FaSave } from 'react-icons/fa';
-import { createSkill } from '../services/skillService';
+import { createNeuron } from '../services/neuronService';
 import { getCategoriesHierarchy } from '../services/categoryService';
 import TipTapEditor from '../components/TipTapEditor';
 import '../assets/styles/CommonStyles.css';
 
-const AddSkill = () => {
+const AddNeuron = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -59,7 +59,7 @@ const AddSkill = () => {
     },
     validationSchema: Yup.object({
       name: Yup.string()
-        .required('Необходимо указать название навыка')
+        .required('Необходимо указать название нейрона')
         .max(255, 'Название не должно превышать 255 символов'),
       category_id: Yup.string()
         .required('Необходимо выбрать категорию'),
@@ -76,19 +76,19 @@ const AddSkill = () => {
         let color = '#FDFF73';
         if (values.level === 'mastered') color = '#67E667';
         if (values.level === 'postponed') color = '#e74c3c';
-        const skillData = { ...values, color };
+        const neuronData = { ...values, color };
         // Отправка данных на сервер
-        const result = await createSkill(skillData);
+        const result = await createNeuron(neuronData);
         
-        // После успешного создания перенаправляем на страницу навыка
+        // После успешного создания перенаправляем на страницу нейрона
         if (result && result.id) {
-          navigate(`/skills/${result.id}`);
+          navigate(`/neurons/${result.id}`);
         } else {
           // Если нет ID, перенаправляем на главную страницу
           navigate('/');
         }
       } catch (err) {
-        setError(err.message || 'Не удалось создать навык');
+        setError(err.message || 'Не удалось создать нейрон');
       } finally {
         setIsLoading(false);
       }
@@ -113,13 +113,13 @@ const AddSkill = () => {
     <div className="container mt-4">
       <div className="mb-4">
         <Link to="/" className="btn btn-outline-secondary">
-          <FaArrowLeft className="me-2" /> К списку навыков
+          <FaArrowLeft className="me-2" /> К списку нейронов
         </Link>
       </div>
 
       <div className="card">
         <div className="card-header">
-          <h2 className="mb-0">Добавление нового навыка</h2>
+          <h2 className="mb-0">Добавление нового нейрона</h2>
         </div>
         <div className="card-body">
           {error && (
@@ -127,15 +127,15 @@ const AddSkill = () => {
           )}
 
           <form onSubmit={formik.handleSubmit}>
-            {/* Название навыка */}
+            {/* Название нейрона */}
             <div className="mb-3">
-              <label htmlFor="name" className="form-label">Название навыка *</label>
+              <label htmlFor="name" className="form-label">Название нейрона *</label>
               <input
                 type="text"
                 id="name"
                 name="name"
                 className={`form-control ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''}`}
-                placeholder="Введите название навыка"
+                placeholder="Введите название нейрона"
                 value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -241,7 +241,7 @@ const AddSkill = () => {
                 id="description"
                 name="description"
                 className={`form-control ${formik.touched.description && formik.errors.description ? 'is-invalid' : ''}`}
-                placeholder="Введите краткое описание навыка"
+                placeholder="Введите краткое описание нейрона"
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -268,7 +268,7 @@ const AddSkill = () => {
                 ref={editorRef}
                 value={formik.values.text}
                 onChange={handleTextChange}
-                placeholder="Введите содержание навыка"
+                placeholder="Введите содержание нейрона"
               />
               <small className="text-muted">
                 Используйте инструменты панели для форматирования текста
@@ -288,7 +288,7 @@ const AddSkill = () => {
                 disabled={isLoading}
               >
                 <FaSave className="me-2" />
-                {isLoading ? 'Сохранение...' : 'Сохранить навык'}
+                {isLoading ? 'Сохранение...' : 'Сохранить нейрон'}
               </button>
             </div>
           </form>
@@ -298,5 +298,5 @@ const AddSkill = () => {
   );
 };
 
-export default AddSkill;
+export default AddNeuron;
 // Нет вызова formik.setValues — ничего менять не нужно, форма работает корректно, если не добавлять setValues.

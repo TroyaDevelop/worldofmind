@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
-class Skill {
-  // Получить все навыки
+class Neuron {
+  // Получить все нейрони
   static async getAll() {
     try {
       const [rows] = await db.query(`
@@ -33,17 +33,17 @@ class Skill {
         ORDER BY s.created_at DESC
       `);
       
-      // Проверяем, что найдены навыки
-      console.log(`Найдено навыков: ${rows.length}`);
+      // Проверяем, что найдены нейрони
+      console.log(`Найдено нейронов: ${rows.length}`);
       
       return rows;
     } catch (error) {
-      console.error('Ошибка получения всех навыков:', error);
-      return { error: 'Ошибка при получении навыков из базы данных' };
+      console.error('Ошибка получения всех нейронов:', error);
+      return { error: 'Ошибка при получении нейронов из базы данных' };
     }
   }
   
-  // Получить все навыки по ID пользователя
+  // Получить все нейрони по ID пользователя
   static async getAllByUserId(userId) {
     try {
       const [rows] = await db.query(`
@@ -63,12 +63,12 @@ class Skill {
       `, [userId]);
       return rows;
     } catch (error) {
-      console.error('Ошибка получения навыков пользователя:', error);
-      return { error: 'Ошибка при получении навыков из базы данных' };
+      console.error('Ошибка получения нейронов пользователя:', error);
+      return { error: 'Ошибка при получении нейронов из базы данных' };
     }
   }
 
-  // Получить навык по ID
+  // Получить нейрон по ID
   static async getById(id, userId = null) {
     try {
       let query = `
@@ -89,13 +89,13 @@ class Skill {
       const [rows] = await db.query(query, params);
       
       if (rows.length === 0) {
-        return { error: 'Навык не найден' };
+        return { error: 'Нейрон не найден' };
       }
       
       return rows[0];
     } catch (error) {
-      console.error('Ошибка получения навыка по ID:', error);
-      return { error: 'Ошибка при получении навыка из базы данных' };
+      console.error('Ошибка получения нейрона по ID:', error);
+      return { error: 'Ошибка при получении нейрона из базы данных' };
     }
   }
   
@@ -127,15 +127,15 @@ class Skill {
       
       return categories;
     } catch (error) {
-      console.error('Ошибка получения категорий навыков:', error);
+      console.error('Ошибка получения категорий нейронов:', error);
       return { error: 'Ошибка при получении категорий из базы данных' };
     }
   }
 
-  // Создать новый навык
-  static async create(skillData) {
+  // Создать новый нейрон
+  static async create(neuronData) {
     try {
-      // Используем правильные имена полей из таблицы skills
+      // Используем правильные имена полей из таблицы skills (сохраняем таблицу для совместимости)
       const { 
         name,
         article, 
@@ -149,7 +149,7 @@ class Skill {
         position_x, 
         position_y, 
         user_id 
-      } = skillData;
+      } = neuronData;
       
       // В запросе указываем только поля, которые есть в таблице
       const [result] = await db.query(`
@@ -166,7 +166,7 @@ class Skill {
         description, 
         text, 
         color,
-        skillData.level || 'in_progress', 
+        neuronData.level || 'in_progress', 
         image, 
         position_x || 0, 
         position_y || 0, 
@@ -174,35 +174,35 @@ class Skill {
       ]);
       
       if (result.affectedRows === 0) {
-        return { error: 'Ошибка создания навыка' };
+        return { error: 'Ошибка создания нейрона' };
       }
       
-      return { id: result.insertId, ...skillData };
+      return { id: result.insertId, ...neuronData };
     } catch (error) {
-      console.error('Ошибка создания навыка:', error);
-      return { error: 'Ошибка при создании навыка в базе данных: ' + error.message };
+      console.error('Ошибка создания нейрона:', error);
+      return { error: 'Ошибка при создании нейрона в базе данных: ' + error.message };
     }
   }
 
-  // Обновить навык
-  static async update(id, skillData, userId) {
+  // Обновить нейрон
+  static async update(id, neuronData, userId) {
     try {
-      // Сначала проверяем, принадлежит ли навык этому пользователю
-      const [skillCheck] = await db.query('SELECT user_id FROM skills WHERE id = ?', [id]);
+      // Сначала проверяем, принадлежит ли нейрон этому пользователю
+      const [neuronCheck] = await db.query('SELECT user_id FROM skills WHERE id = ?', [id]);
       
-      if (skillCheck.length === 0) {
-        return { error: 'Навык не найден' };
+      if (neuronCheck.length === 0) {
+        return { error: 'Нейрон не найден' };
       }
       
-      if (skillCheck[0].user_id !== userId) {
-        return { error: 'Вы не можете редактировать навык другого пользователя' };
+      if (neuronCheck[0].user_id !== userId) {
+        return { error: 'Вы не можете редактировать нейрон другого пользователя' };
       }
       
-      // Используем правильные имена полей из таблицы skills
-      const { name, article, category, category_id, subcategory_id, description, text, color, level, image } = skillData;
+      // Используем правильные имена полей из таблицы skills (сохраняем таблицу для совместимости)
+      const { name, article, category, category_id, subcategory_id, description, text, color, level, image } = neuronData;
       
       // Используем name или article для обратной совместимости
-      const skillName = name || article;
+      const neuronName = name || article;
       
       const [result] = await db.query(`
         UPDATE skills 
@@ -210,47 +210,47 @@ class Skill {
             description = ?, text = ?, color = ?, level = ?, image = ?,
             updated_at = CURRENT_TIMESTAMP 
         WHERE id = ?
-      `, [skillName, category, category_id, subcategory_id, description, text, color, level || 'in_progress', image, id]);
+      `, [neuronName, category, category_id, subcategory_id, description, text, color, level || 'in_progress', image, id]);
       
       if (result.affectedRows === 0) {
-        return { error: 'Ошибка обновления навыка' };
+        return { error: 'Ошибка обновления нейрона' };
       }
       
-      return { id, ...skillData };
+      return { id, ...neuronData };
     } catch (error) {
-      console.error('Ошибка обновления навыка:', error);
-      return { error: 'Ошибка при обновлении навыка в базе данных: ' + error.message };
+      console.error('Ошибка обновления нейрона:', error);
+      return { error: 'Ошибка при обновлении нейрона в базе данных: ' + error.message };
     }
   }
 
-  // Удалить навык
+  // Удалить нейрон
   static async delete(id, userId) {
     try {
-      // Сначала проверяем, принадлежит ли навык этому пользователю
-      const [skillCheck] = await db.query('SELECT user_id FROM skills WHERE id = ?', [id]);
+      // Сначала проверяем, принадлежит ли нейрон этому пользователю
+      const [neuronCheck] = await db.query('SELECT user_id FROM skills WHERE id = ?', [id]);
       
-      if (skillCheck.length === 0) {
-        return { error: 'Навык не найден' };
+      if (neuronCheck.length === 0) {
+        return { error: 'Нейрон не найден' };
       }
       
-      if (skillCheck[0].user_id !== userId) {
-        return { error: 'Вы не можете удалить навык другого пользователя' };
+      if (neuronCheck[0].user_id !== userId) {
+        return { error: 'Вы не можете удалить нейрон другого пользователя' };
       }
       
       const [result] = await db.query('DELETE FROM skills WHERE id = ?', [id]);
       
       if (result.affectedRows === 0) {
-        return { error: 'Ошибка удаления навыка' };
+        return { error: 'Ошибка удаления нейрона' };
       }
       
-      return { message: 'Навык успешно удален' };
+      return { message: 'Нейрон успешно удален' };
     } catch (error) {
-      console.error('Ошибка удаления навыка:', error);
-      return { error: 'Ошибка при удалении навыка из базы данных' };
+      console.error('Ошибка удаления нейрона:', error);
+      return { error: 'Ошибка при удалении нейрона из базы данных' };
     }
   }
 
-  // Получить навыки пользователя
+  // Получить нейрони пользователя
   static async getByUserId(userId) {
     try {
       const [rows] = await db.query(`
@@ -263,10 +263,10 @@ class Skill {
       
       return rows;
     } catch (error) {
-      console.error('Ошибка получения навыков пользователя:', error);
-      return { error: 'Ошибка при получении навыков пользователя из базы данных' };
+      console.error('Ошибка получения нейронов пользователя:', error);
+      return { error: 'Ошибка при получении нейронов пользователя из базы данных' };
     }
   }
 }
 
-module.exports = Skill;
+module.exports = Neuron;

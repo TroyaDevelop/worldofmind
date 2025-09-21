@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Импортируем маршруты
 const authRoutes = require('./routes/auth');
-const skillRoutes = require('./routes/skills');
+const neuronRoutes = require('./routes/neurons');
 const uploadRoutes = require('./routes/uploads');
 const categoryRoutes = require('./routes/categories');
 const settingsRoutes = require('./routes/settings');
@@ -24,21 +24,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Настройка маршрутов API
 app.use('/api/auth', authRoutes);
-app.use('/api/skills', skillRoutes);
+app.use('/api/neurons', neuronRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api', categoryRoutes);
 app.use('/api/settings', settingsRoutes);
 
-// Обрабатываем все остальные маршруты для SPA в продакшене
-if (process.env.NODE_ENV === 'production') {
-  // Статический маршрут для React-приложения
-  app.use(express.static(path.join(__dirname, '../client/build')));
+// Статический маршрут для React-приложения (ВСЕГДА)
+app.use(express.static(path.join(__dirname, '../client/build')));
 
-  // Все неизвестные маршруты направляют на React-приложение
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-  });
-}
+// Все остальные маршруты — на index.html (ВСЕГДА)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+});
 
 // Обработка ошибок
 app.use((err, req, res, next) => {

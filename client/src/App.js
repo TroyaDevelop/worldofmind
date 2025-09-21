@@ -9,9 +9,9 @@ import Header from './components/Header';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
-import AddSkill from './pages/AddSkill';
-import EditSkill from './pages/EditSkill';
-import SkillDetails from './pages/SkillDetails';
+import AddNeuron from './pages/AddNeuron';
+import EditNeuron from './pages/EditNeuron';
+import NeuronDetails from './pages/NeuronDetails';
 import Settings from './pages/Settings';
 
 // Стили
@@ -67,26 +67,26 @@ function App() {
                 } 
               />
               <Route 
-                path="/add-skill" 
+                path="/add-neuron" 
                 element={
                   <ProtectedRoute>
-                    <AddSkill />
+                    <AddNeuron />
                   </ProtectedRoute>
                 } 
               />
               <Route 
-                path="/skills/:id" 
+                path="/neurons/:id" 
                 element={
                   <ProtectedRoute>
-                    <SkillDetails />
+                    <NeuronDetails />
                   </ProtectedRoute>
                 } 
               />
               <Route 
-                path="/skills/:id/edit" 
+                path="/neurons/:id/edit" 
                 element={
                   <ProtectedRoute>
-                    <EditSkill />
+                    <EditNeuron />
                   </ProtectedRoute>
                 } 
               />

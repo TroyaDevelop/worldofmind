@@ -62,14 +62,14 @@ const processImagesInHtml = async (htmlContent) => {
   return processedHtml;
 };
 
-// Функция для получения всех навыков
-export const getAllSkills = async () => {
+// Функция для получения всех нейронов
+export const getAllNeurons = async () => {
   try {
-    const response = await api.get('/skills/public');
+    const response = await api.get('/neurons/public');
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.error || 'Ошибка сервера при получении навыков');
+      throw new Error(error.response.data.error || 'Ошибка сервера при получении нейронов');
     }
     throw error;
   }
@@ -78,7 +78,7 @@ export const getAllSkills = async () => {
 // Функция для получения категорий
 export const getCategories = async () => {
   try {
-    const response = await api.get('/skills/categories/public');
+    const response = await api.get('/neurons/categories/public');
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -88,49 +88,49 @@ export const getCategories = async () => {
   }
 };
 
-// Функция для получения конкретного навыка
-export const getSkillById = async (id) => {
+// Функция для получения конкретного нейрона
+export const getNeuronById = async (id) => {
   try {
-    const response = await api.get(`/skills/public/${id}`);
+    const response = await api.get(`/neurons/public/${id}`);
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.error || 'Не удалось получить навык');
+      throw new Error(error.response.data.error || 'Не удалось получить нейрон');
     }
     throw error;
   }
 };
 
-// Функция для создания навыка
-export const createSkill = async (skillData) => {
+// Функция для создания нейрона
+export const createNeuron = async (neuronData) => {
   try {
     // Обрабатываем base64-изображения в HTML перед отправкой
-    const processedText = await processImagesInHtml(skillData.text);
+    const processedText = await processImagesInHtml(neuronData.text);
     
     // Создаем объект FormData для отправки данных, включая файлы
     const formData = new FormData();
     
     // Добавляем все текстовые поля
-    formData.append('name', skillData.name);
-    formData.append('category_id', skillData.category_id || '');
-    formData.append('subcategory_id', skillData.subcategory_id || '');
-    formData.append('level', skillData.level);
+    formData.append('name', neuronData.name);
+    formData.append('category_id', neuronData.category_id || '');
+    formData.append('subcategory_id', neuronData.subcategory_id || '');
+    formData.append('level', neuronData.level);
     
-    if (skillData.description) {
-      formData.append('description', skillData.description);
+    if (neuronData.description) {
+      formData.append('description', neuronData.description);
     }
     
     if (processedText) {
       formData.append('text', processedText);
     }
     
-    if (skillData.color) {
-      formData.append('color', skillData.color);
+    if (neuronData.color) {
+      formData.append('color', neuronData.color);
     }
     
     // Добавляем изображение, если оно есть
-    if (skillData.image) {
-      formData.append('image', skillData.image);
+    if (neuronData.image) {
+      formData.append('image', neuronData.image);
     }
     
     // Настраиваем заголовок для отправки FormData
@@ -140,32 +140,32 @@ export const createSkill = async (skillData) => {
       }
     };
     
-    const response = await api.post('/skills', formData, config);
-    return response.data.skill;
+    const response = await api.post('/neurons', formData, config);
+    return response.data.neuron;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.error || 'Не удалось создать навык');
+      throw new Error(error.response.data.error || 'Не удалось создать нейрон');
     }
     throw error;
   }
 };
 
-// Функция для обновления навыка
-export const updateSkill = async (id, skillData) => {
+// Функция для обновления нейрона
+export const updateNeuron = async (id, neuronData) => {
   try {
     // Обрабатываем base64-изображения в HTML перед отправкой
-    const processedText = await processImagesInHtml(skillData.text);
+    const processedText = await processImagesInHtml(neuronData.text);
     
     // Вместо FormData используем обычный объект JSON
     const data = {
-      name: skillData.name, // Исправляем article на name
-      category_id: skillData.category_id || null,
-      subcategory_id: skillData.subcategory_id || null,
-      description: skillData.description || '',
+      name: neuronData.name, // Исправляем article на name
+      category_id: neuronData.category_id || null,
+      subcategory_id: neuronData.subcategory_id || null,
+      description: neuronData.description || '',
       text: processedText || '',
-      color: skillData.color || '#3498db',
-      level: skillData.level || 'in_progress', // Добавляем поле level
-      image: skillData.image || null // Добавляем поле image
+      color: neuronData.color || '#3498db',
+      level: neuronData.level || 'in_progress', // Добавляем поле level
+      image: neuronData.image || null // Добавляем поле image
     };
     
     // Настраиваем заголовок для отправки JSON
@@ -178,24 +178,24 @@ export const updateSkill = async (id, skillData) => {
     // Выводим данные в консоль для отладки
     console.log('Отправляем данные на сервер:', data);
     
-    const response = await api.put(`/skills/${id}`, data, config);
+    const response = await api.put(`/neurons/${id}`, data, config);
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.error || 'Не удалось обновить навык');
+      throw new Error(error.response.data.error || 'Не удалось обновить нейрон');
     }
     throw error;
   }
 };
 
-// Функция для удаления навыка
-export const deleteSkill = async (id) => {
+// Функция для удаления нейрона
+export const deleteNeuron = async (id) => {
   try {
-    const response = await api.delete(`/skills/${id}`);
+    const response = await api.delete(`/neurons/${id}`);
     return response.data;
   } catch (error) {
     if (error.response) {
-      throw new Error(error.response.data.error || 'Не удалось удалить навык');
+      throw new Error(error.response.data.error || 'Не удалось удалить нейрон');
     }
     throw error;
   }

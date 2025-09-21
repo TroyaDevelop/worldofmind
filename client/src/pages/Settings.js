@@ -672,7 +672,7 @@ const Settings = () => {
     <div className="container mt-4">
       <div className="mb-4">
         <Link to="/" className="btn btn-outline-secondary">
-          <FaArrowLeft className="me-2" /> Назад к навыкам
+          <FaArrowLeft className="me-2" /> Назад к нейронам
         </Link>
       </div>
 
